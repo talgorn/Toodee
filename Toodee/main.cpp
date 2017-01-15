@@ -49,17 +49,7 @@ void on_trackbar_max( int value, void*)
     string out_value = "HMAX = " + to_string(value);
     cout << out_value << endl;
 }
-//Buttons
-/*
-const String sceneButton = "btnScene";
-const String actorButton = "btnActor";
-void on_scene_button( int value, void*)
-{//This function gets called whenever a
-    // trackbar position is changed
-    string out_value = "sceneBTN = " + to_string(value);
-    cout << out_value << endl;
-}
-*/
+
 void createTrackbars(){
     //create window for trackbars
     namedWindow(trackbarWindowName,
