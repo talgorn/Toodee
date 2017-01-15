@@ -78,7 +78,6 @@ int main(int argc, const char* argv[]) {
     std::cout << "OpenCV Version" << CV_VERSION << std::endl;
     createTrackbars();
     
-    bool bkgOK = false;
     int tresh = 15;
     
     //The video capture feed
