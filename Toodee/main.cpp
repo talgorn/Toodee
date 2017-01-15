@@ -66,7 +66,7 @@ void createTrackbars(){
 int main(int argc, const char* argv[]) {
     //FIRST MAIN BRANCH
     std::cout << "OpenCV Version" << CV_VERSION << std::endl;
-    createTrackbars();
+    //createTrackbars();
     
     int tresh = 15;
     
