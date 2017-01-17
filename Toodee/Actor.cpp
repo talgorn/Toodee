@@ -13,50 +13,40 @@ using namespace cv;
 using namespace std;
 
 //CONSTS
-const short MAX_UNDO = 10;
 
-class Actor {
-private:
-    cv::Mat raw_data; //Not sure is iseful. openCV matrix. Stores the raw image.
-    cv::Mat actor; //Actor matrix (extracted foreground)
-    vector<Point> *bkg_pixels, *fgd_pixels; //
-    int actor_width, actor_height;
-    
-public:
-    Actor(Mat frame);
-    int get_width();
-    int get_height();
-    vector<Point>* get_background();
-    vector<Point>* get_foreground();
-};
-
-//Constructor
+//Constructors
+Actor::Actor()
+{
+    this->frame = NULL;
+    this->width = 0;
+    this->height = 0;
+}
 Actor::Actor(Mat frame)
 {
-    raw_data = frame;
+    this->frame = frame;
+    this->width = frame.cols;
+    this->height = frame.rows;
 }
+
 //Accessors
-int Actor::get_width()
-{
-    return actor_width;
-}
-int Actor::get_height()
-{
-    return actor_height;
-}
-vector<Point>* Actor::get_background()
-{
-    return bkg_pixels;
-}
-vector<Point>* Actor::get_foreground()
-{
-    return bkg_pixels;
+int Actor::get_width(){return width;}
+int Actor::get_height(){return height;}
+void Actor::set_width(int width) {this->width = width;}
+void Actor::set_height(int height) {this->height = height;}
+
+Vec2i Actor::get_size(){
+    Vec2i size(width, height);
+    return size;
 }
 
+Mat Actor::get_frame() {return frame;}
+void Actor::set_frame(Mat frame) {this->frame = frame;}
+vector<Point> Actor::get_background() {return bkg_pixels;}
+vector<Point> Actor::get_foreground() {return this->fgd_pixels;}
 
-
-
-
+//Public methods
+void Actor::add_to_background(Point pixel_coords) {this->bkg_pixels.push_back(pixel_coords);}
+void Actor::add_to_foreground(Point pixel_coords) {this->fgd_pixels.push_back(pixel_coords);}
 
 
 
