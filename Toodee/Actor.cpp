@@ -17,36 +17,40 @@ using namespace std;
 //Constructors
 Actor::Actor()
 {
-    this->frame = NULL;
-    this->width = 0;
-    this->height = 0;
+    this->frame_ = NULL;
+    this->width_ = 0;
+    this->height_ = 0;
+    bkg_pixels_.clear();
+    fgd_pixels_.clear();
 }
 Actor::Actor(Mat frame)
 {
-    this->frame = frame;
-    this->width = frame.cols;
-    this->height = frame.rows;
+    this->frame_ = frame;
+    this->width_ = frame.cols;
+    this->height_ = frame.rows;
+    bkg_pixels_.clear();
+    fgd_pixels_.clear();
 }
 
 //Accessors
-int Actor::get_width(){return width;}
-int Actor::get_height(){return height;}
-void Actor::set_width(int width) {this->width = width;}
-void Actor::set_height(int height) {this->height = height;}
+int Actor::GetWidth(){return width_;}
+int Actor::GetHeight(){return height_;}
+void Actor::SetWidth(int width) {this->width_ = width;}
+void Actor::SetHeight(int height) {this->height_ = height;}
 
-Vec2i Actor::get_size(){
-    Vec2i size(width, height);
+Vec2i Actor::GetSize(){
+    Vec2i size(width_, height_);
     return size;
 }
 
-Mat Actor::get_frame() {return frame;}
-void Actor::set_frame(Mat frame) {this->frame = frame;}
-vector<Point> Actor::get_background() {return bkg_pixels;}
-vector<Point> Actor::get_foreground() {return this->fgd_pixels;}
+Mat Actor::GetFrame() {return frame_;}
+void Actor::SetFrame(Mat frame) {this->frame_ = frame;}
+vector<Point> Actor::GetBackground() {return bkg_pixels_;}
+vector<Point> Actor::GetForeground() {return this->fgd_pixels_;}
 
 //Public methods
-void Actor::add_to_background(Point pixel_coords) {this->bkg_pixels.push_back(pixel_coords);}
-void Actor::add_to_foreground(Point pixel_coords) {this->fgd_pixels.push_back(pixel_coords);}
+void Actor::AddToBackground(Point pixel_coords) {this->bkg_pixels_.push_back(pixel_coords);}
+void Actor::AddToForeground(Point pixel_coords) {this->fgd_pixels_.push_back(pixel_coords);}
 
 
 
