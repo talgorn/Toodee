@@ -37,16 +37,16 @@ int Actor::GetWidth(){return width_;}
 int Actor::GetHeight(){return height_;}
 void Actor::SetWidth(int width) {this->width_ = width;}
 void Actor::SetHeight(int height) {this->height_ = height;}
-
 Vec2i Actor::GetSize(){
     Vec2i size(width_, height_);
     return size;
 }
-
 Mat Actor::GetFrame() {return frame_;}
 void Actor::SetFrame(Mat frame) {this->frame_ = frame;}
 vector<Point> Actor::GetBackground() {return bkg_pixels_;}
 vector<Point> Actor::GetForeground() {return this->fgd_pixels_;}
+void Actor::SetName(string name){this->name_ = name;}
+string Actor::GetName() {return this->name_;}
 
 //Public methods
 void Actor::AddToBackground(Point pixel_coords) {this->bkg_pixels_.push_back(pixel_coords);}

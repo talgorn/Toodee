@@ -30,6 +30,7 @@ Mat cameraInput;
 Mat workFrame;
 Actor* actor;
 Stage* stage;
+vector<Actor*> actors_list;
 
 //App states
 enum enum_states
@@ -45,10 +46,9 @@ void ButtonStageCallback(int, void*);
 
 //Main func
 int main(int argc, const char* argv[]) {
-
-    actor = new Actor();
     stage = new Stage();
-    
+    actors_list.clear();
+
     //Check if camera opens
     if(!videoFeed.isOpened()){
         CV_Assert("Failed to open camera");
@@ -79,10 +79,12 @@ int main(int argc, const char* argv[]) {
                 break;
                 
             case STATE_ACTOR:
-                imshow(WINDOW_MAIN, actor->GetFrame());
+                CreateActor(cameraInput);
+                imshow(WINDOW_MAIN, actors_list[0]->GetFrame());
                 break;
                 
             case STATE_STAGE:
+                CreateStage(cameraInput);
                 imshow(WINDOW_MAIN, stage->GetFrame());
                 break;
                 
@@ -102,16 +104,8 @@ int main(int argc, const char* argv[]) {
 }
 
 //Callbacks
-void ButtonActorCallback(int, void*)
-{
-    CreateActor(cameraInput);
-    state = STATE_ACTOR;
-}
-void ButtonStageCallback(int, void*)
-{
-    CreateStage(cameraInput);
-    state = STATE_STAGE;
-}
+void ButtonActorCallback(int, void*){state = STATE_ACTOR;}
+void ButtonStageCallback(int, void*){state = STATE_STAGE;}
 
 void CreateGui()
 {
@@ -120,27 +114,26 @@ void CreateGui()
 }
 
 void CreateActor(Mat frame) {
+    static int counter = 0;
+    Actor* actor = new Actor();
+    
     actor->SetFrame(cameraInput);
     actor->SetWidth(cameraInput.cols);
     actor->SetHeight(cameraInput.rows);
+    actor->SetName("Actor_" + to_string(counter++));
+    actors_list.push_back(actor);
     
-    cout << "ACTOR..." << endl;
-    cout << actor-> GetHeight() << endl;
-    cout << actor-> GetWidth() << endl;
-    cout << actor-> GetSize() << endl;
-    if(!actor-> GetBackground().empty())
-        cout << actor-> GetBackground().at(0) << endl;
-    if(!actor-> GetForeground().empty())
-        cout << actor-> GetForeground().at(0) <<endl;
+    for (int i=0; i < actors_list.size(); i++) {
+        cout << "I = " + to_string(i) << endl;
+        cout << "nb actors: " + to_string(counter) << endl;
+        cout << actors_list[i]->GetName() << endl;
+    }
+    state = STATE_INTRO;
 }
 
 void CreateStage(Mat frame) {
     stage->SetFrame(cameraInput);
     stage->SetWidth(cameraInput.cols);
     stage->SetHeight(cameraInput.rows);
-    
-    cout << "ACTOR..." << endl;
-    cout << stage-> GetHeight() << endl;
-    cout << stage-> GetWidth() << endl;
-    cout << stage-> GetSize() << endl;
+    state = STATE_INTRO;
 }
