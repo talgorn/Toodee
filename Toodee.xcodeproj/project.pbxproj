@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5825B8C61E21022700CC17A3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5825B8C51E21022700CC17A3 /* main.cpp */; };
 		588EDAC41E2F7FF400593CDD /* Stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 588EDAC21E2F7FF400593CDD /* Stage.cpp */; };
+		588EDAFA1E2FE21600593CDD /* GrabCut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 588EDAF81E2FE21600593CDD /* GrabCut.cpp */; };
 		58B9C7861E2D2A52002C20EB /* Actor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58B9C7841E2D2A52002C20EB /* Actor.cpp */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,8 @@
 		5825B8C51E21022700CC17A3 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		588EDAC21E2F7FF400593CDD /* Stage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stage.cpp; sourceTree = "<group>"; };
 		588EDAC31E2F7FF400593CDD /* Stage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Stage.hpp; sourceTree = "<group>"; };
+		588EDAF81E2FE21600593CDD /* GrabCut.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrabCut.cpp; sourceTree = "<group>"; };
+		588EDAF91E2FE21600593CDD /* GrabCut.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GrabCut.hpp; sourceTree = "<group>"; };
 		58B9C7841E2D2A52002C20EB /* Actor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Actor.cpp; sourceTree = "<group>"; };
 		58B9C7851E2D2A52002C20EB /* Actor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Actor.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,6 +71,8 @@
 				58B9C7851E2D2A52002C20EB /* Actor.hpp */,
 				588EDAC21E2F7FF400593CDD /* Stage.cpp */,
 				588EDAC31E2F7FF400593CDD /* Stage.hpp */,
+				588EDAF81E2FE21600593CDD /* GrabCut.cpp */,
+				588EDAF91E2FE21600593CDD /* GrabCut.hpp */,
 			);
 			path = Toodee;
 			sourceTree = "<group>";
@@ -128,6 +133,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				588EDAFA1E2FE21600593CDD /* GrabCut.cpp in Sources */,
 				588EDAC41E2F7FF400593CDD /* Stage.cpp in Sources */,
 				5825B8C61E21022700CC17A3 /* main.cpp in Sources */,
 				58B9C7861E2D2A52002C20EB /* Actor.cpp in Sources */,

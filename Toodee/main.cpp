@@ -80,7 +80,7 @@ int main(int argc, const char* argv[]) {
                 
             case STATE_ACTOR:
                 CreateActor(cameraInput);
-                imshow(WINDOW_MAIN, actors_list[0]->GetFrame());
+                imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
                 break;
                 
             case STATE_STAGE:
@@ -116,6 +116,8 @@ void CreateGui()
 void CreateActor(Mat frame) {
     static int counter = 0;
     Actor* actor = new Actor();
+    
+    //Update GUI
     
     actor->SetFrame(cameraInput);
     actor->SetWidth(cameraInput.cols);
