@@ -13,6 +13,7 @@
 #include <opencv/highgui.h>
 #include "Actor.hpp"
 #include "Stage.hpp"
+#include "GrabCut.hpp"
 using namespace std;
 using namespace cv;
 
@@ -31,6 +32,7 @@ Mat workFrame;
 Actor* actor;
 Stage* stage;
 vector<Actor*> actors_list;
+//GrabCut Grab; //GrabCut class
 
 //App states
 enum enum_states
@@ -43,11 +45,13 @@ void CreateStage(Mat frame);
 void CreateGui();
 void ButtonActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
+//void on_mouse(int, int, int, int, void*);
 
 //Main func
 int main(int argc, const char* argv[]) {
     stage = new Stage();
     actors_list.clear();
+    actor = new Actor();
 
     //Check if camera opens
     if(!videoFeed.isOpened()){
@@ -62,6 +66,10 @@ int main(int argc, const char* argv[]) {
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
     namedWindow(WINDOW_WORK, WINDOW_AUTOSIZE);
 
+
+    
+    //Mouse callback
+    //setMouseCallback( WINDOW_MAIN, on_mouse, 0 );
     //Create GUI
     CreateGui();
 
@@ -80,6 +88,7 @@ int main(int argc, const char* argv[]) {
                 
             case STATE_ACTOR:
                 CreateActor(cameraInput);
+                //Grab.extract(actor->GetFrame());
                 imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
                 break;
                 
@@ -106,7 +115,15 @@ int main(int argc, const char* argv[]) {
 //Callbacks
 void ButtonActorCallback(int, void*){state = STATE_ACTOR;}
 void ButtonStageCallback(int, void*){state = STATE_STAGE;}
-
+/*
+void on_mouse( int event, int x, int y, int flags, void* param )
+{
+    if (STATE_ACTOR == true)
+    {
+        Grab.mouseClick( event, x, y, flags, param );
+    }
+}
+*/
 void CreateGui()
 {
     createButton(btn_stage,ButtonStageCallback,NULL,CV_PUSH_BUTTON,0);
@@ -115,8 +132,6 @@ void CreateGui()
 
 void CreateActor(Mat frame) {
     static int counter = 0;
-    Actor* actor = new Actor();
-    
     //Update GUI
     
     actor->SetFrame(cameraInput);
