@@ -17,34 +17,11 @@
 class GrabCut
 {
 public:
-    GrabCut(cv::Mat actor);
-    enum{ NOT_SET = 0, IN_PROCESS = 1, SET = 2 };
-    static const int radius = 2;
-    static const int thickness = -1;
-    
-    void reset();
-    void setImageAndWinName( const cv::Mat& _image, const std::string& _winName );
-    void showImage() const;
-    void mouseClick( int event, int x, int y, int flags, void* param );
-    int nextIter();
-    int getIterCount() const { return iterCount; }
-    //cv::Mat extract(cv::Mat frame);
-    
+    GrabCut(const cv::Mat raw_image);
+    void extract(const cv::Rect actor_zone);
 private:
-    void setRectInMask();
-    void setLblsInMask( int flags, cv::Point p, bool isPr );
-    
-    std::string* winName;
-    const cv::Mat* image;
-    const cv::Mat mask;
-    cv::Mat bgdModel, fgdModel;
-    
-    uchar rectState, lblsState, prLblsState;
-    bool isInitialized;
-    
-    cv::Rect rect;
-    std::vector<cv::Point> fgdPxls, bgdPxls, prFgdPxls, prBgdPxls;
-    int iterCount;
+    cv::Mat raw_image_;
+    cv::Mat mask_;
 };
 
 #endif /* GrabCut_hpp */

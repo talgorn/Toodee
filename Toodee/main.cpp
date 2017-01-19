@@ -18,8 +18,8 @@ using namespace std;
 using namespace cv;
 
 //Consts
-const int FRAME_WIDTH = 640;
-const int FRAME_HEIGHT = 380;
+const int FRAME_WIDTH = 600;
+const int FRAME_HEIGHT = 600;
 const string WINDOW_MAIN = "TOODEE";
 const string WINDOW_WORK = "Work window";
 const char* btn_actor = "Create actor";
@@ -66,13 +66,10 @@ int main(int argc, const char* argv[]) {
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
     namedWindow(WINDOW_WORK, WINDOW_AUTOSIZE);
 
-
-    
-    //Mouse callback
-    //setMouseCallback( WINDOW_MAIN, on_mouse, 0 );
     //Create GUI
     CreateGui();
-
+    bool boolActor = false;
+    
     while (1)
     {
         if ( videoFeed.read(cameraInput) == false) exit(0);// Exit if no image
@@ -87,9 +84,18 @@ int main(int argc, const char* argv[]) {
                 break;
                 
             case STATE_ACTOR:
-                CreateActor(cameraInput);
-                //Grab.extract(actor->GetFrame());
-                imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
+                if(boolActor == false)
+                {
+                    CreateActor(cameraInput);
+                    GrabCut Grab(actors_list[0]->GetFrame());
+                    Rect rect;
+                    rect.x = 200;
+                    rect.y = 200;
+                    rect.width = 200;
+                    rect.height = 200;
+                    Grab.extract(rect);
+                    imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
+                }
                 break;
                 
             case STATE_STAGE:
