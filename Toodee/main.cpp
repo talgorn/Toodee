@@ -91,9 +91,10 @@ int main(int argc, const char* argv[]) {
                     Rect rect;
                     rect.x = 200;
                     rect.y = 200;
-                    rect.width = 200;
-                    rect.height = 200;
-                    Grab.extract(rect);
+                    rect.width = 250;
+                    rect.height = 250;
+                    Grab.SetRectMask(rect);
+                    //Grab.extract(rect);
                     imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
                 }
                 break;

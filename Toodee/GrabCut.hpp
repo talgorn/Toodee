@@ -18,10 +18,13 @@ class GrabCut
 {
 public:
     GrabCut(const cv::Mat raw_image);
-    void extract(const cv::Rect actor_zone);
+    void SetRectMask(cv::Rect);
+    void Extract(const cv::Rect actor_zone);
 private:
-    cv::Mat raw_image_;
-    cv::Mat mask_;
+    cv::Mat source_image_;
+    cv::Mat markers_;
+    cv::Mat fg_seed;
+    cv::Mat bg_seed;
 };
 
 #endif /* GrabCut_hpp */

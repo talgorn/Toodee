@@ -25,7 +25,8 @@ Actor::Actor()
 }
 Actor::Actor(Mat frame)
 {
-    this->frame_ = frame;
+    cvCvtColor(&frame, &frame_, CV_8UC3);
+    //this->frame_ = frame;
     this->width_ = frame.cols;
     this->height_ = frame.rows;
     bkg_pixels_.clear();
