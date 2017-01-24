@@ -14,6 +14,7 @@
 #include "Actor.hpp"
 #include "Stage.hpp"
 #include "GrabCut.hpp"
+#include <string.h>
 using namespace std;
 using namespace cv;
 
@@ -21,7 +22,7 @@ using namespace cv;
 const int FRAME_WIDTH = 600;
 const int FRAME_HEIGHT = 600;
 const string WINDOW_MAIN = "TOODEE";
-const string WINDOW_WORK = "Work window";
+const string WINDOW_ACTOR = "ACTOR window";
 const char* btn_actor = "Create actor";
 const char* btn_stage = "Create stage";
 
@@ -32,7 +33,7 @@ Mat workFrame;
 Actor* actor;
 Stage* stage;
 vector<Actor*> actors_list;
-//GrabCut Grab; //GrabCut class
+GrabCut Grab; //GrabCut class
 
 //App states
 enum enum_states
@@ -40,11 +41,12 @@ enum enum_states
 enum_states state = STATE_INTRO;
 
 //Definitions
-void CreateActor(Mat frame);
+void AddActor(Mat frame);
 void CreateStage(Mat frame);
 void CreateGui();
 void ButtonActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
+void on_mouse( int event, int x, int y, int flags, void* param );
 //void on_mouse(int, int, int, int, void*);
 
 //Main func
@@ -64,11 +66,11 @@ int main(int argc, const char* argv[]) {
     
     //Create a window to display video stream
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
-    namedWindow(WINDOW_WORK, WINDOW_AUTOSIZE);
+    //namedWindow(WINDOW_ACTOR, WINDOW_AUTOSIZE);
 
     //Create GUI
     CreateGui();
-    bool boolActor = false;
+    //setMouseCallback( WINDOW_ACTOR, on_mouse, 0 );
     
     while (1)
     {
@@ -76,32 +78,29 @@ int main(int argc, const char* argv[]) {
         
         resize(cameraInput, cameraInput,
                Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
-        imshow(WINDOW_WORK, cameraInput);
+        imshow(WINDOW_MAIN, cameraInput);
 
         switch (state) {
             case STATE_INTRO:
-                printf("Intro...");
+                //printf("Intro...");
                 break;
                 
             case STATE_ACTOR:
-                if(boolActor == false)
                 {
-                    CreateActor(cameraInput);
-                    GrabCut Grab(actors_list[0]->GetFrame());
-                    Rect rect;
-                    rect.x = 200;
-                    rect.y = 200;
-                    rect.width = 250;
-                    rect.height = 250;
-                    Grab.SetRectMask(rect);
-                    //Grab.extract(rect);
-                    imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
+                AddActor(cameraInput);
+                Grab.SetSourceImage(actors_list[0]->GetFrame());
+                Rect rect(200, 200, 250, 250);
+                Grab.SetRectMask(rect);
+                imshow(WINDOW_ACTOR, Grab.result_);
+                imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
                 }
                 break;
                 
             case STATE_STAGE:
+                {
                 CreateStage(cameraInput);
                 imshow(WINDOW_MAIN, stage->GetFrame());
+                }
                 break;
                 
             case STATE_SCENE:
@@ -112,7 +111,6 @@ int main(int argc, const char* argv[]) {
                 printf("QUIT...");
                 break;
         }
-        
         //Show video stream
         waitKey(30);//Window refresh delay
     }
@@ -137,7 +135,7 @@ void CreateGui()
     createButton(btn_actor,ButtonActorCallback,NULL,CV_PUSH_BUTTON,0);
 }
 
-void CreateActor(Mat frame) {
+void AddActor(Mat frame) {
     static int counter = 0;
     //Update GUI
     
@@ -161,3 +159,9 @@ void CreateStage(Mat frame) {
     stage->SetHeight(cameraInput.rows);
     state = STATE_INTRO;
 }
+
+void on_mouse( int event, int x, int y, int flags, void* param )
+{
+    Grab.mouseClick( event, x, y, flags, param );
+}
+

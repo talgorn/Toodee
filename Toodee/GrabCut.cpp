@@ -10,12 +10,17 @@
 using namespace std;
 using namespace cv;
 
+GrabCut::GrabCut(){
+}
 
 GrabCut::GrabCut(const Mat raw_image){
     source_image_ = raw_image.clone();
     markers_.setTo((InputArray) source_image_.rows, source_image_.cols);
 }
 
+void GrabCut::SetSourceImage(Mat frame) {
+    this->source_image_ = frame;
+}
 
 void GrabCut::SetRectMask(Rect sure_fgd) {
     //Set the whole mask as probable background
@@ -33,38 +38,23 @@ void GrabCut::SetRectMask(Rect sure_fgd) {
     fg_seed = Mat(sure_fgd.width,
                   sure_fgd.height,
                   CV_8UC1, GC_FGD);
-    //Draw roi
 
-    Point p1(sure_fgd.x, sure_fgd.y);
-    Point p2(sure_fgd.x+sure_fgd.width, sure_fgd.y+sure_fgd.height);
-    rectangle(markers_, p1, p2,
-              Scalar(0, 255, 255), 2, 8);
-    imshow("marker", markers_);
-    
-    cv::Mat bgd, fgd;
-    //First set the background region
-    
+    cv::Mat bgd, fgd;//Used internally by openCV grabCut()
     int iterations = 1;
-    
-    //8bits 3 channels img
-    cv::grabCut(source_image_, markers_, sure_fgd, bgd, fgd, iterations, cv::GC_INIT_WITH_RECT);
-    
-    
+    cv::grabCut(source_image_, markers_,
+                sure_fgd,
+                bgd, fgd,
+                iterations, cv::GC_INIT_WITH_RECT);
+        
     // let's get all foreground and possible foreground pixels
-    cv::Mat mask_fgpf = ( markers_ == cv::GC_FGD) | ( markers_ == cv::GC_PR_FGD);
+    cv::Mat mask_fgpf = ( markers_ == cv::GC_PR_FGD) | ( markers_ == cv::GC_PR_FGD);
     // and copy all the foreground-pixels to a temporary image
-    cv::Mat3b tmp = cv::Mat3b::zeros(source_image_.rows, source_image_.cols);
-    source_image_.copyTo(tmp, mask_fgpf);
-    // show it
-    namedWindow("marker", WINDOW_AUTOSIZE);
-    cv::imshow("marker", tmp);
-    cv::waitKey(0);
-    
+    result_ = cv::Mat3b::zeros(source_image_.rows, source_image_.cols);
+    source_image_.copyTo(result_, mask_fgpf);
 }
 
 void GrabCut::Extract(Rect actor_zone)
 {
-    namedWindow("caca", WINDOW_AUTOSIZE);
     Mat result;
     Mat bgd_model, fgd_model; //Used internally by openCV grabcut
     grabCut(source_image_,
@@ -74,10 +64,11 @@ void GrabCut::Extract(Rect actor_zone)
                  fgd_model,
                  5,
                  GC_INIT_WITH_RECT);
-    //result = raw_image_ * mask_;
-    Point p1(actor_zone.x, actor_zone.y);
-    Point p2(actor_zone.x+200, actor_zone.y+200);
-    rectangle(markers_, p1, p2, Scalar(0, 255, 255), 2, 8);
-    imshow("caca", markers_);
 }
+
+
+void GrabCut::mouseClick( int event, int x, int y, int flags, void* ){
+    cout << "Mouse EVT" << endl;
+}
+
 
