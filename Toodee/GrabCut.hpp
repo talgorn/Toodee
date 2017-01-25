@@ -25,6 +25,7 @@ public:
     void mouseClick( int event, int x, int y, int flags, void* );
     cv::Mat result_;
 private:
+    //Will change that names
     cv::Mat source_image_;
     cv::Mat markers_;
     cv::Mat fg_seed;
