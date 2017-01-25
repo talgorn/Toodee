@@ -86,6 +86,7 @@ int main(int argc, const char* argv[]) {
                 break;
                 
             case STATE_ACTOR:
+                //Will refactor all this
                 {
                 AddActor(cameraInput);
                 Grab.SetSourceImage(actors_list[0]->GetFrame());
