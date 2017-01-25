@@ -19,16 +19,13 @@ class GrabCut
 public:
     GrabCut();
     GrabCut(const cv::Mat raw_image);
-    void SetRectMask(cv::Rect);
     void SetSourceImage(cv::Mat);
-    void Extract(const cv::Rect actor_zone);
+    void CreateActor(const cv::Rect actor_zone);
     void mouseClick( int event, int x, int y, int flags, void* );
-    cv::Mat result_;
+    cv::Mat clean_actor_;
 private:
-    //Will change that names
+    void SetRectMask(cv::Rect);
     cv::Mat source_image_;
-    cv::Mat markers_;
-    cv::Mat fg_seed;
-    cv::Mat bg_seed;
+    cv::Mat process_mask_;
 };
 #endif /* GrabCut_hpp */

@@ -18,7 +18,6 @@ private:
     std::string name_;
     cv::Mat frame_; //Not sure is iseful. openCV matrix. Stores the raw image.
     cv::Mat actor_; //Actor matrix (extracted foreground)
-    std::vector<cv::Point> bkg_pixels_, fgd_pixels_; //
     int width_, height_;
     
 public:

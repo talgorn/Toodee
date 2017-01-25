@@ -30,7 +30,6 @@ const char* btn_stage = "Create stage";
 VideoCapture videoFeed;
 Mat cameraInput;
 Mat workFrame;
-Actor* actor;
 Stage* stage;
 vector<Actor*> actors_list;
 GrabCut Grab; //GrabCut class
@@ -53,7 +52,6 @@ void on_mouse( int event, int x, int y, int flags, void* param );
 int main(int argc, const char* argv[]) {
     stage = new Stage();
     actors_list.clear();
-    actor = new Actor();
 
     //Check if camera opens
     if(!videoFeed.isOpened()){
@@ -90,9 +88,8 @@ int main(int argc, const char* argv[]) {
                 {
                 AddActor(cameraInput);
                 Grab.SetSourceImage(actors_list[0]->GetFrame());
-                Rect rect(200, 200, 250, 250);
-                Grab.SetRectMask(rect);
-                imshow(WINDOW_ACTOR, Grab.result_);
+                //Grab.SetActor(rect);
+                //imshow(WINDOW_ACTOR, Grab.result_);
                 imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
                 }
                 break;
@@ -137,6 +134,7 @@ void CreateGui()
 }
 
 void AddActor(Mat frame) {
+    Actor* actor = new Actor();
     static int counter = 0;
     //Update GUI
     

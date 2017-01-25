@@ -20,8 +20,6 @@ Actor::Actor()
     this->frame_ = NULL;
     this->width_ = 0;
     this->height_ = 0;
-    bkg_pixels_.clear();
-    fgd_pixels_.clear();
 }
 Actor::Actor(Mat frame)
 {
@@ -29,8 +27,6 @@ Actor::Actor(Mat frame)
     //this->frame_ = frame;
     this->width_ = frame.cols;
     this->height_ = frame.rows;
-    bkg_pixels_.clear();
-    fgd_pixels_.clear();
 }
 
 //Accessors
@@ -44,14 +40,10 @@ Vec2i Actor::GetSize(){
 }
 Mat Actor::GetFrame() {return frame_;}
 void Actor::SetFrame(Mat frame) {this->frame_ = frame;}
-vector<Point> Actor::GetBackground() {return bkg_pixels_;}
-vector<Point> Actor::GetForeground() {return this->fgd_pixels_;}
 void Actor::SetName(string name){this->name_ = name;}
 string Actor::GetName() {return this->name_;}
 
-//Public methods
-void Actor::AddToBackground(Point pixel_coords) {this->bkg_pixels_.push_back(pixel_coords);}
-void Actor::AddToForeground(Point pixel_coords) {this->fgd_pixels_.push_back(pixel_coords);}
+
 
 
 
