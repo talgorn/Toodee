@@ -45,8 +45,6 @@ void CreateStage(Mat frame);
 void CreateGui();
 void ButtonActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
-void on_mouse( int event, int x, int y, int flags, void* param );
-//void on_mouse(int, int, int, int, void*);
 
 //Main func
 int main(int argc, const char* argv[]) {
@@ -64,11 +62,9 @@ int main(int argc, const char* argv[]) {
     
     //Create a window to display video stream
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
-    //namedWindow(WINDOW_ACTOR, WINDOW_AUTOSIZE);
 
     //Create GUI
     CreateGui();
-    //setMouseCallback( WINDOW_ACTOR, on_mouse, 0 );
     
     while (1)
     {
@@ -88,7 +84,7 @@ int main(int argc, const char* argv[]) {
                 {
                 AddActor(cameraInput);
                 Grab.SetSourceImage(actors_list[0]->GetFrame());
-                //Grab.SetActor(rect);
+                Grab.CreateActor();
                 //imshow(WINDOW_ACTOR, Grab.result_);
                 imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
                 }
@@ -118,15 +114,7 @@ int main(int argc, const char* argv[]) {
 //Callbacks
 void ButtonActorCallback(int, void*){state = STATE_ACTOR;}
 void ButtonStageCallback(int, void*){state = STATE_STAGE;}
-/*
-void on_mouse( int event, int x, int y, int flags, void* param )
-{
-    if (STATE_ACTOR == true)
-    {
-        Grab.mouseClick( event, x, y, flags, param );
-    }
-}
-*/
+
 void CreateGui()
 {
     createButton(btn_stage,ButtonStageCallback,NULL,CV_PUSH_BUTTON,0);
@@ -157,10 +145,5 @@ void CreateStage(Mat frame) {
     stage->SetWidth(cameraInput.cols);
     stage->SetHeight(cameraInput.rows);
     state = STATE_INTRO;
-}
-
-void on_mouse( int event, int x, int y, int flags, void* param )
-{
-    Grab.mouseClick( event, x, y, flags, param );
 }
 

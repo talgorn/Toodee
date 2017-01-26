@@ -20,8 +20,7 @@ public:
     GrabCut();
     GrabCut(const cv::Mat raw_image);
     void SetSourceImage(cv::Mat);
-    void CreateActor(const cv::Rect actor_zone);
-    void mouseClick( int event, int x, int y, int flags, void* );
+    void CreateActor();
     cv::Mat clean_actor_;
 private:
     void SetRectMask(cv::Rect);
