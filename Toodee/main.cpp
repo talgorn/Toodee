@@ -45,6 +45,8 @@ void CreateStage(Mat frame);
 void CreateGui();
 void ButtonActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
+void RefreshUI();
+void on_mouse_events( int , int , int , int , void* );
 
 //Main func
 int main(int argc, const char* argv[]) {
@@ -62,31 +64,26 @@ int main(int argc, const char* argv[]) {
     
     //Create a window to display video stream
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
-
+    //Mouse events callback
+    setMouseCallback(WINDOW_MAIN, on_mouse_events, 0);
     //Create GUI
     CreateGui();
     
     while (1)
     {
         if ( videoFeed.read(cameraInput) == false) exit(0);// Exit if no image
-        
-        resize(cameraInput, cameraInput,
-               Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
-        imshow(WINDOW_MAIN, cameraInput);
-
         switch (state) {
             case STATE_INTRO:
+                resize(cameraInput, cameraInput,
+                       Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
+                imshow(WINDOW_MAIN, cameraInput);
                 //printf("Intro...");
                 break;
                 
             case STATE_ACTOR:
                 //Will refactor all this
                 {
-                AddActor(cameraInput);
-                Grab.SetSourceImage(actors_list[0]->GetFrame());
-                Grab.CreateActor();
-                //imshow(WINDOW_ACTOR, Grab.result_);
-                imshow(WINDOW_MAIN, actors_list[actors_list.size() -1]->GetFrame());
+                //Grab.CreateActor();
                 }
                 break;
                 
@@ -112,7 +109,12 @@ int main(int argc, const char* argv[]) {
 }
 
 //Callbacks
-void ButtonActorCallback(int, void*){state = STATE_ACTOR;}
+void ButtonActorCallback(int, void*)
+{
+    AddActor(cameraInput);
+    Grab.SetSourceImage(actors_list[0]->GetImage());
+    state = STATE_ACTOR;
+}
 void ButtonStageCallback(int, void*){state = STATE_STAGE;}
 
 void CreateGui()
@@ -126,7 +128,7 @@ void AddActor(Mat frame) {
     static int counter = 0;
     //Update GUI
     
-    actor->SetFrame(cameraInput);
+    actor->SetImage(cameraInput);
     actor->SetWidth(cameraInput.cols);
     actor->SetHeight(cameraInput.rows);
     actor->SetName("Actor_" + to_string(counter++));
@@ -146,4 +148,66 @@ void CreateStage(Mat frame) {
     stage->SetHeight(cameraInput.rows);
     state = STATE_INTRO;
 }
+
+void on_mouse_events( int event, int x, int y, int flags, void* ){
+    switch(event)
+    {
+        case EVENT_LBUTTONDOWN:
+        {
+            if (STATE_ACTOR && Grab.actor_state == GrabCut::NOT_SET)
+            {
+                Grab.actor_state = GrabCut::IN_PROCESS;
+                cout << "IN_PROCESS" << endl;
+                Grab.actor_region = Rect(x, y, 1, 1);
+            }
+        }
+        case EVENT_MOUSEMOVE:
+            if(STATE_ACTOR && Grab.actor_state == GrabCut::IN_PROCESS )
+            {
+                Grab.actor_region = Rect(Point(Grab.actor_region.x, Grab.actor_region.y),Point(x,y));
+                Grab.actor_region.width = x - Grab.actor_region.x;
+                Grab.actor_region.height = y - Grab.actor_region.y;
+                RefreshUI();
+                //refreshUI();
+            }
+        case EVENT_LBUTTONUP:
+            if(STATE_ACTOR && Grab.actor_state == GrabCut::IN_PROCESS )
+            {
+                //TODO !!!
+                /*
+                 Mat actor = cameraInput.clone();
+                 cameraInput.copyTo(actor(Rect(Grab.actor_region.x, Grab.actor_region.y , Grab.actor_region.x + Grab.actor_region.width, Grab.actor_region.y + Grab.actor_region.height)));
+                 imshow("runningUI", actor);
+*/
+
+                //refreshUI();
+            }
+    }
+}
+
+void RefreshUI() {
+    namedWindow("runningUI", WINDOW_AUTOSIZE);
+    
+    Mat ui_refresh;
+    actors_list[0]->GetImage().copyTo(ui_refresh);//Put source image in ui_refresh mat
+    
+    if( Grab.actor_state == GrabCut::IN_PROCESS )
+    {
+        /*
+        rectangle( ui_refresh, Point( Grab.actor_region.x, Grab.actor_region.y ), Point(Grab.actor_region.x + Grab.actor_region.width, Grab.actor_region.y + Grab.actor_region.height ), GREEN, 1);*/
+        rectangle( ui_refresh, Point( Grab.actor_region.x, Grab.actor_region.y ), Point(Grab.actor_region.x + Grab.actor_region.width, Grab.actor_region.y + Grab.actor_region.height ), GREEN, 1);
+    }
+    
+    imshow(WINDOW_MAIN, ui_refresh);
+
+
+    waitKey(0);
+}
+
+
+
+
+
+
+
 
