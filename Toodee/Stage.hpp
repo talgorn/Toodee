@@ -15,8 +15,8 @@
 
 class Stage {
 private:
-    cv::Mat frame_; //Not sure is iseful. openCV matrix. Stores the raw image.
-    int width_, height_;
+    cv::Mat _frame; //Not sure is iseful. openCV matrix. Stores the raw image.
+    int _width, _height;
     
 public:
     Stage();

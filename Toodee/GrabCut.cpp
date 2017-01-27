@@ -10,10 +10,14 @@
 using namespace std;
 using namespace cv;
 
+static int nb_grab = 0;
+
 GrabCut::GrabCut(){
+    ++nb_grab;
 }
 
 GrabCut::GrabCut(const Mat raw_image){
+    ++nb_grab;
     source_image_ = raw_image.clone();
     process_mask_ = source_image_.clone();
 }
@@ -30,6 +34,10 @@ void GrabCut::SetSourceImage(const Mat frame) {
 
 Mat GrabCut::GetSourceImage(){
     return this->source_image_;
+}
+
+int GrabCut::GetNbInstance(){
+    return nb_grab;
 }
 
 

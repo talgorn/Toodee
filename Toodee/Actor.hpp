@@ -15,10 +15,10 @@
 
 class Actor {
 private:
-    std::string name_;
-    cv::Mat image_; //Not sure is iseful. openCV matrix. Stores the raw image.
-    cv::Mat actor_; //Actor matrix (extracted foreground)
-    int width_, height_;
+    std::string _name;
+    cv::Mat _source_image; //Not sure is iseful. openCV matrix. Stores the raw image.
+    cv::Mat _actor; //Actor matrix (extracted foreground)
+    int _width, _height;
     
 public:
     Actor();

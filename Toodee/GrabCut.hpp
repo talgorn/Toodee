@@ -24,6 +24,7 @@ public:
     GrabCut();
     GrabCut(const cv::Mat raw_image);
     //Methods
+    int GetNbInstance();
     void SetSourceImage(cv::Mat);
     cv::Mat GetSourceImage();
     //Variables

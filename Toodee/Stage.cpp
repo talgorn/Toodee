@@ -17,30 +17,30 @@ using namespace std;
 //Constructors
 Stage::Stage()
 {
-    this->frame_ = NULL;
-    this->width_ = 0;
-    this->height_ = 0;
+    this->_frame = NULL;
+    this->_width = 0;
+    this->_height = 0;
 }
 Stage::Stage(Mat frame)
 {
-    this->frame_ = frame;
-    this->width_ = frame.cols;
-    this->height_ = frame.rows;
+    this->_frame = frame;
+    this->_width = frame.cols;
+    this->_height = frame.rows;
 }
 
 //Accessors
-int Stage::GetWidth(){ return width_; }
-int Stage::GetHeight(){ return height_; }
-void Stage::SetWidth(int width) { this->width_ = width; }
-void Stage::SetHeight(int height) { this->height_ = height; }
+int Stage::GetWidth(){ return _width; }
+int Stage::GetHeight(){ return _height; }
+void Stage::SetWidth(int width) { this->_width = width; }
+void Stage::SetHeight(int height) { this->_height = height; }
 
 Vec2i Stage::GetSize(){
-    Vec2i size(width_, height_);
+    Vec2i size(_width, _height);
     return size;
 }
 
-Mat Stage::GetFrame() { return frame_; }
-void Stage::SetFrame(Mat frame) { this->frame_ = frame; }
+Mat Stage::GetFrame() { return _frame; }
+void Stage::SetFrame(Mat frame) { this->_frame = frame; }
 
 
 

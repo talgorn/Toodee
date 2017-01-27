@@ -17,31 +17,30 @@ using namespace std;
 //Constructors
 Actor::Actor()
 {
-    this->image_ = NULL;
-    this->width_ = 0;
-    this->height_ = 0;
+    this->_source_image = NULL;
+    this->_width = 0;
+    this->_height = 0;
 }
 Actor::Actor(Mat frame)
 {
-    cvCvtColor(&frame, &image_, CV_8UC3);
-    //this->frame_ = frame;
-    this->width_ = frame.cols;
-    this->height_ = frame.rows;
+    cvCvtColor(&frame, &_source_image, CV_8UC3);
+    this->_width = frame.cols;
+    this->_height = frame.rows;
 }
 
 //Accessors
-int Actor::GetWidth(){return width_;}
-int Actor::GetHeight(){return height_;}
-void Actor::SetWidth(int width) {this->width_ = width;}
-void Actor::SetHeight(int height) {this->height_ = height;}
+int Actor::GetWidth(){return _width;}
+int Actor::GetHeight(){return _height;}
+void Actor::SetWidth(int width) {this->_width = width;}
+void Actor::SetHeight(int height) {this->_height = height;}
 Vec2i Actor::GetSize(){
-    Vec2i size(width_, height_);
+    Vec2i size(_width, _height);
     return size;
 }
-Mat Actor::GetImage() {return image_;}
-void Actor::SetImage(Mat frame) {this->image_ = frame;}
-void Actor::SetName(string name){this->name_ = name;}
-string Actor::GetName() {return this->name_;}
+Mat Actor::GetImage() {return _source_image;}
+void Actor::SetImage(Mat frame) {this->_source_image = frame;}
+void Actor::SetName(string name){this->_name = name;}
+string Actor::GetName() {return this->_name;}
 
 
 
