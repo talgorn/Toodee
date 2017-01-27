@@ -95,12 +95,7 @@ int main(int argc, const char* argv[]) {
                 
             case STATE_ACTOR:
                 {
-                      CreateActor();
-                    /*
-                    if(actor_in_progress == true)
-                    {
-                        CreateActor();
-                    }*/
+                    CreateActor();
                 }
                 break;
                 
@@ -156,10 +151,11 @@ void CreateActor()
     } else
     {
         cout << "ACTOR CURRENTLY CREATING !!!" << endl;
-        cout << mouse_data.event << endl;
-        cout << mouse_data.x << endl;
-        cout << mouse_data.y << endl;
-        cout << mouse_data.flags << endl;
+        cout << "EVT: " + to_string(mouse_data.event) << endl;
+        cout << "X: " + to_string(mouse_data.x) << endl;
+        cout << "Y: " + to_string(mouse_data.y) << endl;
+        cout << "Flag: " + to_string(mouse_data.flags) << endl;
+        showActor(actors_list[actors_list.size() -1]->GetImage());
         state = STATE_ACTOR;
     }
 
@@ -233,13 +229,12 @@ void on_mouse_events( int event, int x, int y, int flags, void* ptr){
 void showActor(Mat image)
 {
     if (image.empty()) return;
-    
     Mat result;
+    
     result = image.clone();
+    imshow(WINDOW_MAIN, result);
+    waitKey(30);
 
-    
-    imshow( WINDOW_MAIN, result );
-    
     
     
     
