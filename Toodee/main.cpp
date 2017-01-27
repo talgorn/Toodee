@@ -75,9 +75,8 @@ int main(int argc, const char* argv[]) {
     
     //Create a window to display video stream
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
-    //Mouse events callback
+    
     setMouseCallback(WINDOW_MAIN, on_mouse_events, &mouse_data);
-    //Create GUI
     CreateGui();
     
     while (1)
@@ -98,11 +97,6 @@ int main(int argc, const char* argv[]) {
                 {
                     if(actor_in_progress == true)
                     {
-                        Mat image = actors_list[actors_list.size() -1]->GetImage();
-                        resize(image, image,
-                               Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
-                        imshow(WINDOW_MAIN, image);
-                        waitKey(30);//Window refresh delay
                         CreateActor();
                     }
                 }
@@ -152,6 +146,13 @@ void AddActor() {
 
 void CreateActor()
 {
+    //Display actor frame
+    Mat image = actors_list[actors_list.size() -1]->GetImage();
+    resize(image, image,
+           Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
+    imshow(WINDOW_MAIN, image);
+    waitKey(30);//Window refresh delay
+    
     //Here we put the non halting logic of GrabCut
     if(mouse_data.event == CV_EVENT_MBUTTONDOWN)
     {
