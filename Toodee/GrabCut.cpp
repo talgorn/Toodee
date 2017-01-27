@@ -18,11 +18,6 @@ GrabCut::GrabCut(const Mat raw_image){
     process_mask_ = source_image_.clone();
 }
 
-void GrabCut::CreateActor()
-{
-    //Main loop of grabcut iterations
-}
-
 void GrabCut::SetSourceImage(const Mat frame) {
     this->source_image_ = frame.clone();
     this->process_mask_ = Mat(source_image_.rows, source_image_.cols,

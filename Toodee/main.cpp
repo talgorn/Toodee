@@ -39,6 +39,15 @@ enum enum_states
 {STATE_INTRO, STATE_ACTOR, STATE_STAGE, STATE_SCENE, STATE_QUIT};
 enum_states state = STATE_INTRO;
 
+//mouseData
+typedef struct mouse_data {
+    int event;
+    int x;
+    int y;
+    int flags;
+} mouse_holder;//This struct hold mouse data under the tag 'mouse_holder'
+
+
 //Definitions
 void AddActor(Mat frame);
 void CreateStage(Mat frame);
@@ -48,8 +57,11 @@ void ButtonStageCallback(int, void*);
 void RefreshUI();
 void on_mouse_events( int , int , int , int , void* );
 
+
 //Main func
 int main(int argc, const char* argv[]) {
+    mouse_holder mouse_data;
+    
     stage = new Stage();
     actors_list.clear();
 
@@ -65,7 +77,7 @@ int main(int argc, const char* argv[]) {
     //Create a window to display video stream
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
     //Mouse events callback
-    setMouseCallback(WINDOW_MAIN, on_mouse_events, 0);
+    setMouseCallback(WINDOW_MAIN, on_mouse_events, &mouse_data);
     //Create GUI
     CreateGui();
     
@@ -81,6 +93,7 @@ int main(int argc, const char* argv[]) {
                 break;
                 
             case STATE_ACTOR:
+                
                 //Will refactor all this
                 {
                 //Grab.CreateActor();
@@ -149,7 +162,22 @@ void CreateStage(Mat frame) {
     state = STATE_INTRO;
 }
 
-void on_mouse_events( int event, int x, int y, int flags, void* ){
+void on_mouse_events( int event, int x, int y, int flags, void* ptr){
+    //Set mouse data in mouse_data struct
+    mouse_data* m_data = static_cast<mouse_data*>(ptr);
+    m_data->event = event;
+    m_data->x = x;
+    m_data->y = y;
+    m_data->flags = flags;
+        
+    /*
+    cout << "EVT: " + to_string(m_data->event) << endl;
+    cout << "X: " + to_string(m_data->x) << endl;
+    cout << "Y: " + to_string(m_data->y) << endl;
+    cout << "Flag: " + to_string(m_data->flags) << endl;
+    */
+    
+    /*
     switch(event)
     {
         case EVENT_LBUTTONDOWN:
@@ -178,11 +206,12 @@ void on_mouse_events( int event, int x, int y, int flags, void* ){
                  Mat actor = cameraInput.clone();
                  cameraInput.copyTo(actor(Rect(Grab.actor_region.x, Grab.actor_region.y , Grab.actor_region.x + Grab.actor_region.width, Grab.actor_region.y + Grab.actor_region.height)));
                  imshow("runningUI", actor);
-*/
+
 
                 //refreshUI();
             }
     }
+     */
 }
 
 void RefreshUI() {
