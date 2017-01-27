@@ -57,7 +57,7 @@ void ButtonStageCallback(int, void*);
 void RefreshUI();
 void on_mouse_events( int , int , int , int , void* );
 void CreateActor();
-
+void showActor(Mat);
 //Main func
 int main(int argc, const char* argv[]) {
     VideoCapture videoFeed;
@@ -95,10 +95,12 @@ int main(int argc, const char* argv[]) {
                 
             case STATE_ACTOR:
                 {
+                      CreateActor();
+                    /*
                     if(actor_in_progress == true)
                     {
                         CreateActor();
-                    }
+                    }*/
                 }
                 break;
                 
@@ -146,13 +148,6 @@ void AddActor() {
 
 void CreateActor()
 {
-    //Display actor frame
-    Mat image = actors_list[actors_list.size() -1]->GetImage();
-    resize(image, image,
-           Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
-    imshow(WINDOW_MAIN, image);
-    waitKey(30);//Window refresh delay
-    
     //Here we put the non halting logic of GrabCut
     if(mouse_data.event == CV_EVENT_MBUTTONDOWN)
     {
@@ -161,8 +156,14 @@ void CreateActor()
     } else
     {
         cout << "ACTOR CURRENTLY CREATING !!!" << endl;
+        cout << mouse_data.event << endl;
+        cout << mouse_data.x << endl;
+        cout << mouse_data.y << endl;
+        cout << mouse_data.flags << endl;
         state = STATE_ACTOR;
     }
+
+    //showActor(actors_list[actors_list.size() -1]->GetImage());
 }
 
 void CreateStage(Stage* stage, Mat frame) {
@@ -180,10 +181,10 @@ void on_mouse_events( int event, int x, int y, int flags, void* ptr){
 
     /*
     mouse_data* m_data = static_cast<mouse_data*>(ptr);
-    m_data->event = event;
-    m_data->x = x;
-    m_data->y = y;
-    m_data->flags = flags;
+    m_data.event = event;
+    m_data.x = x;
+    m_data.y = y;
+    m_data.flags = flags;
       */
     /*
     cout << "EVT: " + to_string(mouse_data.event) << endl;
@@ -229,6 +230,51 @@ void on_mouse_events( int event, int x, int y, int flags, void* ptr){
      */
 }
 
+void showActor(Mat image)
+{
+    if (image.empty()) return;
+    
+    Mat result;
+    result = image.clone();
+
+    
+    imshow( WINDOW_MAIN, result );
+    
+    
+    
+    
+    
+    
+    /*
+     if( image->empty() || winName->empty() )
+     return;
+     
+     Mat res;
+     Mat binMask;
+     if( !isInitialized )
+     image->copyTo( res );
+     else
+     {
+     getBinMask( mask, binMask );
+     image->copyTo( res, binMask );
+     }
+     
+     vector<Point>::const_iterator it;
+     for( it = bgdPxls.begin(); it != bgdPxls.end(); ++it )
+     circle( res, *it, radius, BLUE, thickness );
+     for( it = fgdPxls.begin(); it != fgdPxls.end(); ++it )
+     circle( res, *it, radius, RED, thickness );
+     for( it = prBgdPxls.begin(); it != prBgdPxls.end(); ++it )
+     circle( res, *it, radius, LIGHTBLUE, thickness );
+     for( it = prFgdPxls.begin(); it != prFgdPxls.end(); ++it )
+     circle( res, *it, radius, PINK, thickness );
+     
+     if( rectState == IN_PROCESS || rectState == SET )
+     rectangle( res, Point( rect.x, rect.y ), Point(rect.x + rect.width, rect.y + rect.height ), GREEN, 2);
+     
+     imshow( *winName, res );
+     */
+}
 void RefreshUI() {
     namedWindow("runningUI", WINDOW_AUTOSIZE);
     
