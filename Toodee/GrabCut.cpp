@@ -27,8 +27,6 @@ void GrabCut::SetSourceImage(const Mat frame) {
     this->process_mask_ = Mat(source_image_.rows, source_image_.cols,
                               CV_8UC1);//8bits, 1 channel
     this->process_mask_ = Scalar(GC_BGD);//Init with 0s
-    
-    actor_state = NOT_SET;
     isMaskInitialized = false;
 }
 

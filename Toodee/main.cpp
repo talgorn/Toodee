@@ -44,7 +44,6 @@ typedef struct mouse_data {
 //Globals
 mouse_holder mouse_data;//Mouse data
 bool isActorOK = false;
-bool actor_in_progress = false;
 vector<Actor*> actors_list;
 Mat cameraInput;
 GrabCut Grab;
@@ -115,9 +114,11 @@ int main(int argc, const char* argv[]) {
 //Callbacks
 void ButtonActorCallback(int, void*)
 {
+    //initialize GrabCut source image with current mframe
+    Grab.SetSourceImage(cameraInput);
     //Create an Actor object, set image_source as current frame
     AddActor();
-    actor_in_progress = true;
+    
     state = STATE_ACTOR;
 }
 
@@ -145,16 +146,14 @@ void CreateActor()
 {
     // Select last actor in list
     Actor* actor = actors_list[actors_list.size() -1];
-    Grab.SetSourceImage(actor->GetImage());
-    
-    cout << Grab.GetNbInstance() << endl;
-    
+    cout << "NB INST " + to_string(Grab.GetNbInstance()) << endl;
+        /*
     cout << "ACTOR CURRENTLY CREATING !!!" << endl;
     cout << "EVT: " + to_string(mouse_data.event) << endl;
     cout << "X: " + to_string(mouse_data.x) << endl;
     cout << "Y: " + to_string(mouse_data.y) << endl;
     cout << "Flag: " + to_string(mouse_data.flags) << endl;
-    
+    */
         switch(mouse_data.event)
         {
             case CV_EVENT_MBUTTONDOWN:
@@ -173,31 +172,18 @@ void CreateActor()
                 break;
             case EVENT_MOUSEMOVE:
                 cout << "STATE = " + to_string(Grab.actor_state) << endl;
-                //if(Grab.actor_state == GrabCut::IN_PROCESS )
-                //{
+                if(Grab.actor_state == GrabCut::IN_PROCESS )
+                {
 
                     Grab.actor_region = Rect(Point(Grab.actor_region.x, Grab.actor_region.y),Point(mouse_data.x,mouse_data.y));
                     Grab.actor_region.width = mouse_data.x - Grab.actor_region.x;
                     Grab.actor_region.height = mouse_data.y - Grab.actor_region.y;
-                    
-
-                    //refresh
-                    //showActor(Grab, actor->GetImage());
-                //}
+                }
                 break;
             case EVENT_LBUTTONUP:
-                cout << "STATE FIN = " + to_string( Grab.actor_state ) << endl;
-                
-                /*
-                if(STATE_ACTOR && Grab.actor_state == GrabCut::IN_PROCESS )
-                {
-                    //TODO !!!
-                    Mat actor = Grab.GetSourceImage();
-                    cameraInput.copyTo(actor(Rect(Grab.actor_region.x, Grab.actor_region.y , Grab.actor_region.x + Grab.actor_region.width, Grab.actor_region.y + Grab.actor_region.height)));
-                    imshow(WINDOW_MAIN, actor);
-                    //refresh
-                }
-                 */
+                cout << "JE METS A JOUR ACTOR !!!" << endl;
+                Grab.actor_state = GrabCut::NOT_SET;
+                state = STATE_VIDEO_FEED;
                 break;
                 
             default:
@@ -229,15 +215,15 @@ void showActor(GrabCut &Grab, Mat image)
     Mat ui_refresh;
     image.copyTo(ui_refresh);
     
-    //if(Grab.actor_state == GrabCut::IN_PROCESS)
-    //{
+    if(Grab.actor_state == GrabCut::IN_PROCESS)
+    {
     rectangle(  ui_refresh,
                 Point( Grab.actor_region.x, Grab.actor_region.y ),
                 Point(Grab.actor_region.x + Grab.actor_region.width,
                 Grab.actor_region.y + Grab.actor_region.height ),
                 GREEN, 1);
         cout << "couille" << endl;
-    //}
+    }
     
     
     imshow(WINDOW_MAIN, ui_refresh);
