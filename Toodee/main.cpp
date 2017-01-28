@@ -142,18 +142,13 @@ void AddActor() {
     actors_list.push_back(actor);
 }
 
+///TODO: Selection OK, Refactor for pixel labelings
 void CreateActor()
 {
     // Select last actor in list
     Actor* actor = actors_list[actors_list.size() -1];
     cout << "NB INST " + to_string(Grab.GetNbInstance()) << endl;
-        /*
-    cout << "ACTOR CURRENTLY CREATING !!!" << endl;
-    cout << "EVT: " + to_string(mouse_data.event) << endl;
-    cout << "X: " + to_string(mouse_data.x) << endl;
-    cout << "Y: " + to_string(mouse_data.y) << endl;
-    cout << "Flag: " + to_string(mouse_data.flags) << endl;
-    */
+    
         switch(mouse_data.event)
         {
             case CV_EVENT_MBUTTONDOWN:
@@ -221,7 +216,7 @@ void showActor(GrabCut &Grab, Mat image)
 
     Mat ui_refresh;
     image.copyTo(ui_refresh);
-    
+    cout << "Dasn showActor state is: " + to_string(Grab.actor_state) << endl;
     if(Grab.actor_state == GrabCut::IN_PROCESS)
     {
     rectangle(  ui_refresh,
