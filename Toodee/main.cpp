@@ -181,9 +181,17 @@ void CreateActor()
                 }
                 break;
             case EVENT_LBUTTONUP:
-                cout << "JE METS A JOUR ACTOR !!!" << endl;
+                {
+                //Put the selection into actor's source_image_ member
+                actor->SetImage(Grab.GetSourceImage()(Grab.actor_region).clone());
                 Grab.actor_state = GrabCut::NOT_SET;
-                state = STATE_VIDEO_FEED;
+                //state = STATE_VIDEO_FEED;
+                /*
+                namedWindow("check", WINDOW_AUTOSIZE);
+                imshow("check", actor->GetImage());
+                */
+                imshow(WINDOW_MAIN, actor->GetImage());
+                }
                 break;
                 
             default:
@@ -209,9 +217,8 @@ void on_mouse_events( int event, int x, int y, int flags, void* ptr){
 
 void showActor(GrabCut &Grab, Mat image)
 {
-    
     if (image.empty()) return;
-    
+
     Mat ui_refresh;
     image.copyTo(ui_refresh);
     
@@ -224,49 +231,9 @@ void showActor(GrabCut &Grab, Mat image)
                 GREEN, 1);
         cout << "couille" << endl;
     }
-    
-    
     imshow(WINDOW_MAIN, ui_refresh);
     waitKey(30);
 }
-
-
-/*
- 
-void RefreshUI() {
-    namedWindow("runningUI", WINDOW_AUTOSIZE);
-    
-    Mat ui_refresh;
-    ///actors_list[0]->GetImage().copyTo(ui_refresh);//Put source image in ui_refresh mat
-    
-    if( Grab.actor_state == GrabCut::IN_PROCESS )
-    {
-        
-        rectangle( ui_refresh, Point( Grab.actor_region.x, Grab.actor_region.y ), Point(Grab.actor_region.x + Grab.actor_region.width, Grab.actor_region.y + Grab.actor_region.height ), GREEN, 1);
-        rectangle( ui_refresh, Point( Grab.actor_region.x, Grab.actor_region.y ), Point(Grab.actor_region.x + Grab.actor_region.width, Grab.actor_region.y + Grab.actor_region.height ), GREEN, 1);
-    }
-    
-    imshow(WINDOW_MAIN, ui_refresh);
-
-    waitKey(0);
-}
-
-*/
-
-
-
-
-
-
-
-
-
-/*
-                 //Lets create a GrabCut class and update it with source image
- GrabCut Grab(cameraInput); //GrabCut class
- Grab.SetSourceImage(actors_list[actors_list.size() -1]->GetImage());*/
-
-
 
 
 
