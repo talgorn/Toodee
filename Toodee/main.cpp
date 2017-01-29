@@ -153,7 +153,6 @@ void CreateActor()
         {
             case CV_EVENT_MBUTTONDOWN:
                 {
-                cout << "FUCK !!!" << endl;
                 state = STATE_VIDEO_FEED;
                 }
                 break;
@@ -181,10 +180,10 @@ void CreateActor()
                 actor->SetImage(Grab.GetSourceImage()(Grab.actor_region).clone());
                 Grab.actor_state = GrabCut::NOT_SET;
                 //state = STATE_VIDEO_FEED;
-                /*
+                
                 namedWindow("check", WINDOW_AUTOSIZE);
                 imshow("check", actor->GetImage());
-                */
+                
                 imshow(WINDOW_MAIN, actor->GetImage());
                 }
                 break;
@@ -224,7 +223,6 @@ void showActor(GrabCut &Grab, Mat image)
                 Point(Grab.actor_region.x + Grab.actor_region.width,
                 Grab.actor_region.y + Grab.actor_region.height ),
                 GREEN, 1);
-        cout << "couille" << endl;
     }
     imshow(WINDOW_MAIN, ui_refresh);
     waitKey(30);
