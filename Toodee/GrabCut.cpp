@@ -10,33 +10,41 @@
 using namespace std;
 using namespace cv;
 
-static int nb_grab = 0;
-
+//Constructors
 GrabCut::GrabCut(){
-    ++nb_grab;
 }
-
 GrabCut::GrabCut(const Mat raw_image){
-    ++nb_grab;
-    source_image_ = raw_image.clone();
-    process_mask_ = source_image_.clone();
+    _source_image = raw_image.clone();
+    _mask = _source_image.clone();
 }
 
-void GrabCut::SetSourceImage(const Mat frame) {
-    this->source_image_ = frame.clone();
-    this->process_mask_ = Mat(source_image_.rows, source_image_.cols,
-                              CV_8UC1);//8bits, 1 channel
-    this->process_mask_ = Scalar(GC_BGD);//Init with 0s
-    isMaskInitialized = false;
+//
+//Public
+void GrabCut::InitWithImage(const Mat frame) {
+    if( frame.empty() ) return;
+    _source_image = frame.clone();
+    _mask.create(frame.size(), CV_8UC1);//8bits, 1 channel
+    Reset();//Init mask and mask labelling pixels
 }
 
 Mat GrabCut::GetSourceImage(){
-    return this->source_image_;
+    return _source_image;
 }
 
-int GrabCut::GetNbInstance(){
-    return nb_grab;
+//
+//Private
+void GrabCut::Reset()
+{
+    if( _mask.empty() ) _mask.setTo(Scalar::all(GC_BGD));
+    _fgd_pxls.clear();
+    _bgd_pxls.clear();
+    _prob_fgd_pxls.clear();
+    _prob_bgd_pxls.clear();
+    _rectangle_state = NOT_SET;
+    _labelling_state = NOT_SET;
 }
+
+
 
 
 

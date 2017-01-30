@@ -22,7 +22,7 @@ using namespace cv;
 const int FRAME_WIDTH = 200;
 const int FRAME_HEIGHT = 200;
 const string WINDOW_MAIN = "TOODEE";
-const string WINDOW_ACTOR = "ACTOR window";
+const string WINDOW_ACTOR = "ACTOR WINDOW";
 const char* btn_actor = "Create actor";
 const char* btn_stage = "Create stage";
 
@@ -74,8 +74,7 @@ int main(int argc, const char* argv[]) {
     
     //Create a window to display video stream
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
-    
-    setMouseCallback(WINDOW_MAIN, on_mouse_events, &mouse_data);
+
     CreateGui();
     
     while (1)
@@ -114,11 +113,14 @@ int main(int argc, const char* argv[]) {
 //Callbacks
 void ButtonActorCallback(int, void*)
 {
+    //Create actor window
+    namedWindow(WINDOW_ACTOR, CV_WINDOW_AUTOSIZE);
+    //Set the mouse events callback method
+    setMouseCallback(WINDOW_ACTOR, on_mouse_events, &mouse_data);
     //initialize GrabCut source image with current mframe
-    Grab.SetSourceImage(cameraInput);
+    Grab.InitWithImage(cameraInput);
     //Create an Actor object, set image_source as current frame
     AddActor();
-    
     state = STATE_ACTOR;
 }
 
@@ -137,6 +139,7 @@ void AddActor() {
     actor->SetImage(cameraInput);
     actor->SetWidth(cameraInput.cols);
     actor->SetHeight(cameraInput.rows);
+    
     actor->SetName("Actor_" + to_string(counter++));
     //Push actor in actor list
     actors_list.push_back(actor);
@@ -147,8 +150,6 @@ void CreateActor()
 {
     // Select last actor in list
     Actor* actor = actors_list[actors_list.size() -1];
-    cout << "NB INST " + to_string(Grab.GetNbInstance()) << endl;
-    
         switch(mouse_data.event)
         {
             case CV_EVENT_MBUTTONDOWN:
@@ -157,34 +158,34 @@ void CreateActor()
                 }
                 break;
             case EVENT_LBUTTONDOWN:
-                if (Grab.actor_state == GrabCut::NOT_SET)
                 {
-                    Grab.actor_state = GrabCut::IN_PROCESS;
-                    cout << "IN_PROCESS ?" + to_string( Grab.actor_state ) << endl;
-                    Grab.actor_region = Rect(mouse_data.x, mouse_data.y, 1, 1);
+                    //Don't we already have a rectangle set ?
+                    if(Grab._rectangle_state == GrabCut::NOT_SET)
+                    {
+                        Grab._rectangle_state = GrabCut::IN_PROCESS;
+                        Grab._labels_region = Rect( mouse_data.x, mouse_data.y, 1, 1 );
+                        cout << "ON FAIT LE RECTANGLE" << endl;
+                    }
+                    //If we do, we are defining bgd / fgd labels for the mask
+                    if(Grab._rectangle_state == GrabCut::SET)
+                        Grab._labelling_state = GrabCut::IN_PROCESS;
                 }
                 break;
             case EVENT_MOUSEMOVE:
-                cout << "STATE = " + to_string(Grab.actor_state) << endl;
-                if(Grab.actor_state == GrabCut::IN_PROCESS )
                 {
-
-                    Grab.actor_region = Rect(Point(Grab.actor_region.x, Grab.actor_region.y),Point(mouse_data.x,mouse_data.y));
-                    Grab.actor_region.width = mouse_data.x - Grab.actor_region.x;
-                    Grab.actor_region.height = mouse_data.y - Grab.actor_region.y;
+                    if( Grab._rectangle_state == GrabCut::IN_PROCESS )
+                    {
+                        cout << "prit" << endl;
+                        Grab._labels_region =
+                        Rect( Point(Grab._labels_region.x, Grab._labels_region.y),
+                             Point(mouse_data.x, mouse_data.y) );
+                        
+                    }
                 }
                 break;
             case EVENT_LBUTTONUP:
                 {
-                //Put the selection into actor's source_image_ member
-                actor->SetImage(Grab.GetSourceImage()(Grab.actor_region).clone());
-                Grab.actor_state = GrabCut::NOT_SET;
-                //state = STATE_VIDEO_FEED;
-                
-                namedWindow("check", WINDOW_AUTOSIZE);
-                imshow("check", actor->GetImage());
-                
-                imshow(WINDOW_MAIN, actor->GetImage());
+                    //Grab._rectangle_state = true;
                 }
                 break;
                 
@@ -213,20 +214,50 @@ void showActor(GrabCut &Grab, Mat image)
 {
     if (image.empty()) return;
 
-    Mat ui_refresh;
-    image.copyTo(ui_refresh);
-    cout << "Dasn showActor state is: " + to_string(Grab.actor_state) << endl;
-    if(Grab.actor_state == GrabCut::IN_PROCESS)
+    Mat ui_refresh;//Temp image for UI display
+    
+    if(!Grab.isMaskInitialized)
     {
-    rectangle(  ui_refresh,
-                Point( Grab.actor_region.x, Grab.actor_region.y ),
-                Point(Grab.actor_region.x + Grab.actor_region.width,
-                Grab.actor_region.y + Grab.actor_region.height ),
-                GREEN, 1);
+        image.copyTo(ui_refresh);
     }
-    imshow(WINDOW_MAIN, ui_refresh);
+    else
+    {
+        //Get mask
+        //Display labels (Red/Blue pixels)
+    }
+    
+    //Draw labels (from vectors: _fgd_pxls, _prob_fgd_pxls, etc)
+    
+    //If currently defining (MOUSE_MOVE) the initial rectangle, draw it
+    if(Grab._rectangle_state == GrabCut::IN_PROCESS)
+    {
+        rectangle(  ui_refresh,
+                  Point( Grab._labels_region.x, Grab._labels_region.y ),
+                  Point( Grab._labels_region.x + Grab._labels_region.width,
+                        Grab._labels_region.y + Grab._labels_region.height ),
+                  GREEN, 1);
+    }
+    imshow(WINDOW_ACTOR, ui_refresh);
     waitKey(30);
 }
+
+
+//cout << "Dans showActor state is: " + to_string(Grab._labelling_state) << endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

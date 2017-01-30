@@ -31,16 +31,16 @@ Actor::Actor(Mat frame)
 //Accessors
 int Actor::GetWidth(){return _width;}
 int Actor::GetHeight(){return _height;}
-void Actor::SetWidth(int width) {this->_width = width;}
-void Actor::SetHeight(int height) {this->_height = height;}
+void Actor::SetWidth(int width) {_width = width;}
+void Actor::SetHeight(int height) {_height = height;}
 Vec2i Actor::GetSize(){
     Vec2i size(_width, _height);
     return size;
 }
 Mat Actor::GetImage() {return _source_image;}
-void Actor::SetImage(Mat frame) {this->_source_image = frame;}
-void Actor::SetName(string name){this->_name = name;}
-string Actor::GetName() {return this->_name;}
+void Actor::SetImage(Mat frame) {_source_image = frame;}
+void Actor::SetName(string name){_name = name;}
+string Actor::GetName() {return _name;}
 
 
 

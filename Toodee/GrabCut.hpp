@@ -21,21 +21,27 @@ class GrabCut
 {
 public:
     //Constructors
-    GrabCut();
-    GrabCut(const cv::Mat raw_image);
+                GrabCut();
+                GrabCut(const cv::Mat raw_image);
     //Methods
-    int GetNbInstance();
-    void SetSourceImage(cv::Mat);
-    cv::Mat GetSourceImage();
+    void        SetMaskWithRect(cv::Rect);
+    void        SetLabelsInMask(cv::Rect);
+    void        InitWithImage(cv::Mat);
+    cv::Mat     GetSourceImage();
     //Variables
-    enum{ NOT_SET = 0, IN_PROCESS = 1, SET = 2 };
-    bool isMaskInitialized;
-    cv::Mat clean_actor_;
-    bool actor_state;
-    cv::Rect actor_region;
+    enum        { NOT_SET = 0, IN_PROCESS = 1, SET = 2 };
+    bool        isMaskInitialized;//Either with Rectangle or Labels
+    short        _rectangle_state;//1=Updating initial ROI (and mask) with rectangle
+    short       _labelling_state;//1=Updating labels of mask
+    cv::Rect    _labels_region;//ROI
 private:
-    void SetRectMask(cv::Rect);
-    cv::Mat source_image_;
-    cv::Mat process_mask_;
+    //Methods
+    void        Reset();//Init mask and labels
+    //Variables
+    cv::Mat     _source_image;
+    cv::Mat     _mask;
+    std::vector<cv::Point>//mask's labels
+                _fgd_pxls, _bgd_pxls,
+                _prob_fgd_pxls, _prob_bgd_pxls;
 };
 #endif /* GrabCut_hpp */

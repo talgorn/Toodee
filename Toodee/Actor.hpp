@@ -16,17 +16,17 @@
 class Actor {
 private:
     std::string _name;
-    cv::Mat _source_image; //Not sure is iseful. openCV matrix. Stores the raw image.
-    cv::Mat _actor; //Actor matrix (extracted foreground)
-    int _width, _height;
+    cv::Mat     _source_image; //Not sure is iseful. openCV matrix. Stores the raw image.
+    cv::Mat     _actor; //Actor matrix (extracted foreground)
+    int         _width, _height;
     
 public:
     Actor();
     Actor(cv::Mat frame);
     int GetWidth();
     int GetHeight();
-    cv::Vec2i GetSize();
-    cv::Mat GetImage();
+    cv::Vec2i   GetSize();
+    cv::Mat     GetImage();
     std::vector<cv::Point> GetBackground();
     std::vector<cv::Point> GetForeground();
     void AddToBackground(cv::Point pixel);
