@@ -24,10 +24,13 @@ public:
                 GrabCut();
                 GrabCut(const cv::Mat raw_image);
     //Methods
-    void        SetMaskWithRect(cv::Rect);
-    void        SetLabelsInMask(cv::Rect);
     void        InitWithImage(cv::Mat);
     cv::Mat     GetSourceImage();
+    void        SetMaskWithRect();
+    void        SetLabelsInMask(cv::Rect);
+    void        ProcessMask(cv::Mat &, cv::Mat &);
+    cv::Mat     GetMask();
+
     //Variables
     enum        { NOT_SET = 0, IN_PROCESS = 1, SET = 2 };
     bool        isMaskInitialized;//Either with Rectangle or Labels
@@ -38,6 +41,7 @@ private:
     //Methods
     void        Reset();//Init mask and labels
     //Variables
+    bool        isMaskInitialised;
     cv::Mat     _source_image;
     cv::Mat     _mask;
     std::vector<cv::Point>//mask's labels

@@ -168,7 +168,11 @@ void CreateActor()
                     }
                     //If we do, we are defining bgd / fgd labels for the mask
                     if(Grab._rectangle_state == GrabCut::SET)
+                    {
+                        
                         Grab._labelling_state = GrabCut::IN_PROCESS;
+                    }
+
                 }
                 break;
             case EVENT_MOUSEMOVE:
@@ -179,13 +183,20 @@ void CreateActor()
                         Grab._labels_region =
                         Rect( Point(Grab._labels_region.x, Grab._labels_region.y),
                              Point(mouse_data.x, mouse_data.y) );
-                        
                     }
                 }
                 break;
             case EVENT_LBUTTONUP:
                 {
-                    //Grab._rectangle_state = true;
+                    if(Grab._rectangle_state == GrabCut::IN_PROCESS)
+                    {
+                        //Met à jour actor
+                        actor->SetImage(Grab.GetSourceImage()(Rect(Grab._labels_region)));
+                        Grab.SetMaskWithRect();
+                        Grab._rectangle_state = GrabCut::SET;
+                        Grab.isMaskInitialized = true;
+                    }
+
                 }
                 break;
                 
@@ -213,7 +224,6 @@ void on_mouse_events( int event, int x, int y, int flags, void* ptr){
 void showActor(GrabCut &Grab, Mat image)
 {
     if (image.empty()) return;
-
     Mat ui_refresh;//Temp image for UI display
     
     if(!Grab.isMaskInitialized)
@@ -222,8 +232,11 @@ void showActor(GrabCut &Grab, Mat image)
     }
     else
     {
-        //Get mask
+        Mat img = image.clone();
+        Mat res_mask = Grab.GetMask().clone();
+        Grab.ProcessMask(img, res_mask);
         //Display labels (Red/Blue pixels)
+        ui_refresh = res_mask.clone();
     }
     
     //Draw labels (from vectors: _fgd_pxls, _prob_fgd_pxls, etc)
