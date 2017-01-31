@@ -22,7 +22,6 @@ class GrabCut
 public:
     //Constructors
                 GrabCut();
-                GrabCut(const cv::Mat raw_image);
     //Methods
     void        InitWithImage(cv::Mat);
     cv::Mat     GetSourceImage();

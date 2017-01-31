@@ -40,7 +40,7 @@ Vec2i Actor::GetSize(){
     return size;
 }
 Mat Actor::GetImage() {return _source_image;}
-void Actor::SetImage(Mat frame) {frame.copyTo(_source_image);}
+void Actor::SetImage(Mat frame) {_source_image = frame.clone();}
 void Actor::SetName(string name){_name = name;}
 string Actor::GetName() {return _name;}
 

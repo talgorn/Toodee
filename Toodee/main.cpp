@@ -56,7 +56,7 @@ void ButtonActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
 void on_mouse_events( int , int , int , int , void* );
 void CreateActor();
-void showActor(GrabCut &, Mat);
+void showActor(GrabCut &);
 //Main func
 int main(int argc, const char* argv[]) {
     VideoCapture videoFeed;
@@ -117,7 +117,7 @@ void ButtonActorCallback(int, void*)
     namedWindow(WINDOW_ACTOR, CV_WINDOW_AUTOSIZE);
     //Set the mouse events callback method
     setMouseCallback(WINDOW_ACTOR, on_mouse_events, &mouse_data);
-    //initialize GrabCut source image with current mframe
+    //initialize GrabCut object with current mframe
     Grab.InitWithImage(cameraInput);
     //Create an Actor object, set image_source as current frame
     AddActor();
@@ -136,9 +136,9 @@ void AddActor() {
     static int counter = 0;
     Actor* actor = new Actor();
     //Update actor
-    actor->SetImage(cameraInput);
-    actor->SetWidth(cameraInput.cols);
-    actor->SetHeight(cameraInput.rows);
+    actor->SetImage(Grab.GetSourceImage());
+    actor->SetWidth(Grab.GetSourceImage().cols);
+    actor->SetHeight(Grab.GetSourceImage().rows);
     
     actor->SetName("Actor_" + to_string(counter++));
     //Push actor in actor list
@@ -150,58 +150,59 @@ void CreateActor()
 {
     // Select last actor in list
     Actor* actor = actors_list[actors_list.size() -1];
-        switch(mouse_data.event)
-        {
-            case CV_EVENT_MBUTTONDOWN:
+    switch(mouse_data.event)
+    {
+        case CV_EVENT_MBUTTONDOWN:
+            {
+            state = STATE_VIDEO_FEED;
+            }
+            break;
+        case EVENT_LBUTTONDOWN:
+            {
+                //Don't we already have a rectangle set ?
+                if(Grab._rectangle_state == GrabCut::NOT_SET)
                 {
-                state = STATE_VIDEO_FEED;
+                    Grab._rectangle_state = GrabCut::IN_PROCESS;
+                    Grab._labels_region = Rect( mouse_data.x, mouse_data.y, 1, 1 );
+                    cout << "ON FAIT LE RECTANGLE !" << endl;
                 }
-                break;
-            case EVENT_LBUTTONDOWN:
+                //If we do, we are defining bgd / fgd labels for the mask
+                if(Grab._rectangle_state == GrabCut::SET)
                 {
-                    //Don't we already have a rectangle set ?
-                    if(Grab._rectangle_state == GrabCut::NOT_SET)
-                    {
-                        Grab._rectangle_state = GrabCut::IN_PROCESS;
-                        Grab._labels_region = Rect( mouse_data.x, mouse_data.y, 1, 1 );
-                        cout << "ON FAIT LE RECTANGLE" << endl;
-                    }
-                    //If we do, we are defining bgd / fgd labels for the mask
-                    if(Grab._rectangle_state == GrabCut::SET)
-                    {
-                        
-                        Grab._labelling_state = GrabCut::IN_PROCESS;
-                    }
+                    cout << "ON FAIT LES LABELS !" << endl;
+                    Grab._labelling_state = GrabCut::IN_PROCESS;
+                }
+            }
+            break;
+        case EVENT_MOUSEMOVE:
+            {
+                if( Grab._rectangle_state == GrabCut::IN_PROCESS )
+                {
+                    cout << "prit" << endl;
+                    Grab._labels_region =
+                    Rect( Point(Grab._labels_region.x, Grab._labels_region.y),
+                         Point(mouse_data.x, mouse_data.y) );
+                }
+            }
+            break;
+        case EVENT_LBUTTONUP:
+            {
+                if(Grab._rectangle_state == GrabCut::IN_PROCESS)
+                {
+                    //Define ROI in _mask
+                    Grab.SetMaskWithRect();
+                    Grab._rectangle_state = GrabCut::SET;
+                    Grab.isMaskInitialized = true;
+                    //Met à jour actor
+                    actor->SetImage(Grab.GetSourceImage()(Rect(Grab._labels_region)));
 
                 }
-                break;
-            case EVENT_MOUSEMOVE:
-                {
-                    if( Grab._rectangle_state == GrabCut::IN_PROCESS )
-                    {
-                        cout << "prit" << endl;
-                        Grab._labels_region =
-                        Rect( Point(Grab._labels_region.x, Grab._labels_region.y),
-                             Point(mouse_data.x, mouse_data.y) );
-                    }
-                }
-                break;
-            case EVENT_LBUTTONUP:
-                {
-                    if(Grab._rectangle_state == GrabCut::IN_PROCESS)
-                    {
-                        //Met à jour actor
-                        actor->SetImage(Grab.GetSourceImage()(Rect(Grab._labels_region)));
-                        Grab.SetMaskWithRect();
-                        Grab._rectangle_state = GrabCut::SET;
-                        Grab.isMaskInitialized = true;
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-        showActor(Grab, actor->GetImage());
+            }
+            break;
+        default:
+            break;
+    }
+    showActor(Grab);
 }
 
 void CreateStage(Stage* stage, Mat frame) {
@@ -218,24 +219,25 @@ void on_mouse_events( int event, int x, int y, int flags, void* ptr){
     mouse_data.flags = flags;
 }
 
-void showActor(GrabCut &Grab, Mat image)
+void showActor(GrabCut &Grab)
 {
-    if (image.empty()) return;
+    if (Grab.GetSourceImage().empty()) return;
     Mat ui_refresh;//Temp image for UI display
+    Mat current_mask;//Copy of mask
     
     if(!Grab.isMaskInitialized)
     {
-        image.copyTo(ui_refresh);
+        Grab.GetSourceImage().copyTo(ui_refresh);
     }
     else
     {
-        Mat img;
-        img.create( image.size(), CV_8UC1);//= image.clone();
+        current_mask.create( Grab.GetSourceImage().size(), CV_8UC1);//= image.clone();
         Mat res_mask = Grab.GetMask();
-        Grab.ProcessMask(img, res_mask);
+        Grab.ProcessMask(current_mask, res_mask);
         //Display labels (Red/Blue pixels)
         ui_refresh = res_mask.clone();
     }
+    
     
     //Draw labels (from vectors: _fgd_pxls, _prob_fgd_pxls, etc)
     

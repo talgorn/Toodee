@@ -13,10 +13,6 @@ using namespace cv;
 //Constructors
 GrabCut::GrabCut(){
 }
-GrabCut::GrabCut(const Mat raw_image){
-    _source_image = raw_image.clone();
-    _mask = _source_image.clone();
-}
 
 //
 //Public
@@ -35,7 +31,7 @@ Mat GrabCut::GetSourceImage(){
 //Private
 void GrabCut::Reset()
 {
-    if( _mask.empty() ) _mask.setTo(Scalar::all(GC_BGD));
+    if(!_mask.empty()) _mask.setTo(Scalar::all(GC_BGD));
     _fgd_pxls.clear();
     _bgd_pxls.clear();
     _prob_fgd_pxls.clear();
@@ -45,21 +41,30 @@ void GrabCut::Reset()
 }
 
 void GrabCut::SetMaskWithRect(){
-    Mat bgdModel, fgdModel;
     CV_Assert( !_mask.empty() );
-    _mask.setTo( GC_BGD );//Put all ROI to 0
-    _labels_region.x = max(0, _labels_region.x);
-    _labels_region.y = max(0, _labels_region.y);
-    _labels_region.width = min(_labels_region.width, GetSourceImage().cols-_labels_region.x);
-    _labels_region.height = min(_labels_region.height, GetSourceImage().rows-_labels_region.y);
-    //Update ROI with probable fgd pixels defined by user selection
-    (_mask(_labels_region)).setTo( Scalar(GC_PR_FGD) );
 
+    _mask.setTo( GC_BGD );//Put all ROI to 0
+    //Update ROI with probable fgd pixels defined by user selection
+    //(_mask(_labels_region)).setTo( Scalar(255, 0, 0, 1) );
+    (_mask(_labels_region)).setTo( Scalar(GC_PR_FGD) );
+    
+    
+    //
+    ////
+    //EVERYTHING SEEMS INITIALIZED CORRECTLY UP TO THIS POINT
+    //GRABCUT INIT WITH RECT SHOULD PRODUCE A FIRST ITER
+    //BUT IT DOESN4T
+    //WHY ??
+    /*
+    Mat bgdModel, fgdModel;
     cv::grabCut( _source_image,
                 _mask, _labels_region,
-                bgdModel, fgdModel, 5, GC_INIT_WITH_RECT );
+                bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
+    
+    
     cv::namedWindow("tutu", WINDOW_AUTOSIZE);
     imshow("tutu", _mask);
+     */
 }
 
 
