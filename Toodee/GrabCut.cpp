@@ -74,7 +74,7 @@ void GrabCut::ProcessMask(Mat &current_mask, Mat &resulting_mask){
     resulting_mask = current_mask & 1;
 }
 
-Mat GrabCut::GetMask(){return _mask;};
+Mat GrabCut::GetMask(){return _mask;}
 
 
 

@@ -196,14 +196,11 @@ void CreateActor()
                         Grab._rectangle_state = GrabCut::SET;
                         Grab.isMaskInitialized = true;
                     }
-
                 }
                 break;
-                
             default:
                 break;
         }
-
         showActor(Grab, actor->GetImage());
 }
 
@@ -232,8 +229,9 @@ void showActor(GrabCut &Grab, Mat image)
     }
     else
     {
-        Mat img = image.clone();
-        Mat res_mask = Grab.GetMask().clone();
+        Mat img;
+        img.create( image.size(), CV_8UC1);//= image.clone();
+        Mat res_mask = Grab.GetMask();
         Grab.ProcessMask(img, res_mask);
         //Display labels (Red/Blue pixels)
         ui_refresh = res_mask.clone();
@@ -253,7 +251,6 @@ void showActor(GrabCut &Grab, Mat image)
     imshow(WINDOW_ACTOR, ui_refresh);
     waitKey(30);
 }
-
 
 //cout << "Dans showActor state is: " + to_string(Grab._labelling_state) << endl;
 

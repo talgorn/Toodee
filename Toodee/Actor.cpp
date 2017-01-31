@@ -17,13 +17,15 @@ using namespace std;
 //Constructors
 Actor::Actor()
 {
-    this->_source_image = NULL;
-    this->_width = 0;
-    this->_height = 0;
+    _source_image = NULL;
+    _image_8CU1 = NULL;
+    _width = 0;
+    _height = 0;
 }
 Actor::Actor(Mat frame)
 {
     cvCvtColor(&frame, &_source_image, CV_8UC3);
+    cvCvtColor(&frame, &_image_8CU1, CV_8UC1);
     this->_width = frame.cols;
     this->_height = frame.rows;
 }
@@ -38,7 +40,7 @@ Vec2i Actor::GetSize(){
     return size;
 }
 Mat Actor::GetImage() {return _source_image;}
-void Actor::SetImage(Mat frame) {_source_image = frame;}
+void Actor::SetImage(Mat frame) {frame.copyTo(_source_image);}
 void Actor::SetName(string name){_name = name;}
 string Actor::GetName() {return _name;}
 
