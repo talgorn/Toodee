@@ -46,40 +46,30 @@ void GrabCut::SetMaskWithRect(){
     _mask.setTo( GC_BGD );//Put all ROI to 0
     //Update ROI with probable fgd pixels defined by user selection
     //(_mask(_labels_region)).setTo( Scalar(255, 0, 0, 1) );
-    (_mask(_labels_region)).setTo( Scalar(GC_PR_FGD) );
-    
-    
-    //
-    ////
-    //EVERYTHING SEEMS INITIALIZED CORRECTLY UP TO THIS POINT
-    //GRABCUT INIT WITH RECT SHOULD PRODUCE A FIRST ITER
-    //BUT IT DOESN4T
-    //WHY ??
-    /*
-    Mat bgdModel, fgdModel;
-    cv::grabCut( _source_image,
-                _mask, _labels_region,
-                bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
-    
-    
-    cv::namedWindow("tutu", WINDOW_AUTOSIZE);
-    imshow("tutu", _mask);
-     */
+    (_mask(_labels_region)).setTo( Scalar(GC_PR_BGD) );
 }
 
 
 void GrabCut::ProcessMask(Mat &current_mask, Mat &resulting_mask){
-    if( current_mask.type()!=CV_8UC1 || resulting_mask.empty())
+    if(current_mask.type() != CV_8UC1)
         CV_Error( Error::StsBadArg,
-                 "current maks is empty or has incorrect type (not CV_8UC1)" );
+                 "current mask has incorrect type (not CV_8UC1)." );
     if( resulting_mask.empty() ||
-       resulting_mask.rows!=current_mask.rows ||
-       resulting_mask.cols!=current_mask.cols )
+        resulting_mask.rows!=current_mask.rows ||
+        resulting_mask.cols!=current_mask.cols )
         resulting_mask.create( resulting_mask.size(), CV_8UC1 );
+    
     resulting_mask = current_mask & 1;
+    
+    Mat bgdModel, fgdModel;
+    //cv::grabCut( _source_image,
+                //resulting_mask, _labels_region,
+                //bgdModel, fgdModel, 4, GC_INIT_WITH_RECT );
+    cv::namedWindow("tutu", WINDOW_AUTOSIZE);
+    imshow("tutu", resulting_mask);
 }
 
-Mat GrabCut::GetMask(){return _mask;}
+Mat GrabCut::GetMask(){return _mask ;}
 
 
 

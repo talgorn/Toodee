@@ -195,7 +195,6 @@ void CreateActor()
                     Grab.isMaskInitialized = true;
                     //Met à jour actor
                     actor->SetImage(Grab.GetSourceImage()(Rect(Grab._labels_region)));
-
                 }
             }
             break;
@@ -231,11 +230,14 @@ void showActor(GrabCut &Grab)
     }
     else
     {
-        current_mask.create( Grab.GetSourceImage().size(), CV_8UC1);//= image.clone();
-        Mat res_mask = Grab.GetMask();
-        Grab.ProcessMask(current_mask, res_mask);
-        //Display labels (Red/Blue pixels)
-        ui_refresh = res_mask.clone();
+        Mat mask = Grab.GetMask();
+        Mat bgdModel;
+        Mat fgdModel;
+        current_mask.create(mask.size(), CV_8UC1 );
+        Grab.ProcessMask(mask, current_mask);
+        //cv::grabCut(Grab.GetSourceImage(), current_mask, Grab._labels_region, bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
+
+        current_mask.copyTo(ui_refresh);
     }
     
     
