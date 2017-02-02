@@ -31,6 +31,7 @@ Mat GrabCut::GetSourceImage(){
 //Private
 void GrabCut::Reset()
 {
+
     if(!_mask.empty()) _mask.setTo(Scalar::all(GC_BGD));
     _fgd_pxls.clear();
     _bgd_pxls.clear();

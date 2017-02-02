@@ -81,8 +81,7 @@ int main(int argc, const char* argv[]) {
     {
         if (videoFeed.read(cameraInput) == false) exit(0);// Exit if no image
         
-        switch (state)
-        {
+        switch (state) {
             case STATE_VIDEO_FEED:
                 resize(cameraInput, cameraInput,
                        Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
@@ -191,6 +190,16 @@ void CreateActor()
                 {
                     //Define ROI in _mask
                     Grab.SetMaskWithRect();
+                    Mat bgdModel;
+                    Mat fgdModel;
+                    grabCut( Grab.GetSourceImage(), Grab.GetMask(), Grab._labels_region, bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
+                    //Get result from masks & image
+                    Mat mask_fgpf = ( Grab.GetMask() == cv::GC_FGD) | ( Grab.GetMask() == cv::GC_PR_FGD);
+                    Mat res_img = cv::Mat3b::zeros(Grab.GetSourceImage().rows, Grab.GetSourceImage().cols);
+                    Grab.GetSourceImage().copyTo( res_img, mask_fgpf );
+                    //imshow("WINDOW_ACTOR", res_img);
+                    //waitKey(0);
+                    //Grab.GetSourceImage().copyTo( res_img, mask_fgpf );//This should do the trick !!!
                     Grab._rectangle_state = GrabCut::SET;
                     Grab.isMaskInitialized = true;
                     //Met à jour actor
@@ -230,6 +239,9 @@ void showActor(GrabCut &Grab)
     }
     else
     {
+        Grab.GetSourceImage().copyTo(ui_refresh);
+
+        /*
         Mat mask = Grab.GetMask();
         Mat bgdModel;
         Mat fgdModel;
@@ -237,7 +249,7 @@ void showActor(GrabCut &Grab)
         Grab.ProcessMask(mask, current_mask);
         //cv::grabCut(Grab.GetSourceImage(), current_mask, Grab._labels_region, bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
 
-        current_mask.copyTo(ui_refresh);
+        current_mask.copyTo(ui_refresh);*/
     }
     
     
@@ -252,6 +264,8 @@ void showActor(GrabCut &Grab)
                         Grab._labels_region.y + Grab._labels_region.height ),
                   GREEN, 1);
     }
+    if(Grab._rectangle_state == GrabCut::SET)
+        Grab.GetSourceImage().copyTo(ui_refresh);
     imshow(WINDOW_ACTOR, ui_refresh);
     waitKey(30);
 }
