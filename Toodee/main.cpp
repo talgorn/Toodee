@@ -55,12 +55,13 @@ void CreateGui();
 void ButtonActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
 void on_mouse_events( int , int , int , int , void* );
-void CreateActor();
+Mat CreateActor(Mat);
 void showActor(GrabCut &);
 //Main func
 int main(int argc, const char* argv[]) {
     VideoCapture videoFeed;
-
+    Mat output_frame;
+    
     actors_list.clear();
     
     //Check if camera opens
@@ -83,16 +84,13 @@ int main(int argc, const char* argv[]) {
         
         switch (state) {
             case STATE_VIDEO_FEED:
-                resize(cameraInput, cameraInput,
-                       Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
-                imshow(WINDOW_MAIN, cameraInput);
+                cameraInput.copyTo( output_frame );
                 //Show video stream
-                waitKey(30);//Window refresh delay
                 break;
                 
             case STATE_ACTOR:
                 {
-                    CreateActor();
+                    output_frame = CreateActor(cameraInput);
                 }
                 break;
                 
@@ -105,6 +103,10 @@ int main(int argc, const char* argv[]) {
             case STATE_QUIT:
                 break;
         }
+        resize(output_frame, output_frame,
+        Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
+        imshow(WINDOW_MAIN, output_frame);
+        waitKey(10);
     }
     return 0;
 }
@@ -145,8 +147,10 @@ void AddActor() {
 }
 
 ///TODO: Selection OK, Refactor for pixel labelings
-void CreateActor()
+Mat CreateActor(Mat frame)
 {
+    Mat actor_frame = actors_list[actors_list.size() -1]->GetImage();
+    
     // Select last actor in list
     Actor* actor = actors_list[actors_list.size() -1];
     switch(mouse_data.event)
@@ -204,13 +208,15 @@ void CreateActor()
                     Grab.isMaskInitialized = true;
                     //Met à jour actor
                     actor->SetImage(Grab.GetSourceImage()(Rect(Grab._labels_region)));
+                    mask_fgpf.copyTo(actor_frame);
                 }
             }
             break;
         default:
             break;
     }
-    showActor(Grab);
+    return actor_frame;
+
 }
 
 void CreateStage(Stage* stage, Mat frame) {
