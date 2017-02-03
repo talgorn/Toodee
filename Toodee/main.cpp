@@ -31,8 +31,6 @@ enum enum_states
 {STATE_VIDEO_FEED, STATE_ACTOR, STATE_STAGE, STATE_SCENE, STATE_QUIT};
 enum_states state = STATE_VIDEO_FEED;
 
-
-
 //This struct holds mouse data under the tag 'mouse_holder'
 typedef struct mouse_data {
     int event;
@@ -56,12 +54,11 @@ void ButtonActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
 void on_mouse_events( int , int , int , int , void* );
 Mat CreateActor(Mat);
-void showActor(GrabCut &);
+
 //Main func
 int main(int argc, const char* argv[]) {
     VideoCapture videoFeed;
     Mat output_frame;
-    
     actors_list.clear();
     
     //Check if camera opens
@@ -75,7 +72,7 @@ int main(int argc, const char* argv[]) {
     
     //Create a window to display video stream
     namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
-
+    setMouseCallback(WINDOW_MAIN, on_mouse_events, &mouse_data);
     CreateGui();
     
     while (1)
@@ -103,8 +100,8 @@ int main(int argc, const char* argv[]) {
             case STATE_QUIT:
                 break;
         }
-        resize(output_frame, output_frame,
-        Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
+        //resize(output_frame, output_frame,
+        //Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
         imshow(WINDOW_MAIN, output_frame);
         waitKey(10);
     }
@@ -114,10 +111,6 @@ int main(int argc, const char* argv[]) {
 //Callbacks
 void ButtonActorCallback(int, void*)
 {
-    //Create actor window
-    namedWindow(WINDOW_ACTOR, CV_WINDOW_AUTOSIZE);
-    //Set the mouse events callback method
-    setMouseCallback(WINDOW_ACTOR, on_mouse_events, &mouse_data);
     //initialize GrabCut object with current mframe
     Grab.InitWithImage(cameraInput);
     //Create an Actor object, set image_source as current frame
@@ -149,7 +142,8 @@ void AddActor() {
 ///TODO: Selection OK, Refactor for pixel labelings
 Mat CreateActor(Mat frame)
 {
-    Mat actor_frame = actors_list[actors_list.size() -1]->GetImage();
+    Mat temp_frame;
+    actors_list[actors_list.size() -1]->GetImage().copyTo(temp_frame);
     
     // Select last actor in list
     Actor* actor = actors_list[actors_list.size() -1];
@@ -171,7 +165,7 @@ Mat CreateActor(Mat frame)
                 }
                 //If we do, we are defining bgd / fgd labels for the mask
                 if(Grab._rectangle_state == GrabCut::SET)
-                {
+                {//TODO: LABELS
                     cout << "ON FAIT LES LABELS !" << endl;
                     Grab._labelling_state = GrabCut::IN_PROCESS;
                 }
@@ -182,9 +176,12 @@ Mat CreateActor(Mat frame)
                 if( Grab._rectangle_state == GrabCut::IN_PROCESS )
                 {
                     cout << "prit" << endl;
-                    Grab._labels_region =
+                    Grab._labels_region = Rect(Point(Grab._labels_region.x, Grab._labels_region.y),
+                                               Point(mouse_data.x, mouse_data.y));
                     Rect( Point(Grab._labels_region.x, Grab._labels_region.y),
                          Point(mouse_data.x, mouse_data.y) );
+                    rectangle(temp_frame, Point(Grab._labels_region.x, Grab._labels_region.y),
+                              Point(mouse_data.x, mouse_data.y), GREEN, 2);
                 }
             }
             break;
@@ -201,21 +198,21 @@ Mat CreateActor(Mat frame)
                     Mat mask_fgpf = ( Grab.GetMask() == cv::GC_FGD) | ( Grab.GetMask() == cv::GC_PR_FGD);
                     Mat res_img = cv::Mat3b::zeros(Grab.GetSourceImage().rows, Grab.GetSourceImage().cols);
                     Grab.GetSourceImage().copyTo( res_img, mask_fgpf );
-                    //imshow("WINDOW_ACTOR", res_img);
-                    //waitKey(0);
-                    //Grab.GetSourceImage().copyTo( res_img, mask_fgpf );//This should do the trick !!!
                     Grab._rectangle_state = GrabCut::SET;
                     Grab.isMaskInitialized = true;
                     //Met à jour actor
-                    actor->SetImage(Grab.GetSourceImage()(Rect(Grab._labels_region)));
-                    mask_fgpf.copyTo(actor_frame);
+                    actor->SetImage(res_img(Rect(Grab._labels_region)));
+                    res_img.copyTo(temp_frame);
+                    imshow("Actor", actor->GetImage());
+                    waitKey(30);
+                    state = STATE_VIDEO_FEED;
                 }
             }
             break;
         default:
             break;
     }
-    return actor_frame;
+    return temp_frame;
 
 }
 
@@ -233,50 +230,6 @@ void on_mouse_events( int event, int x, int y, int flags, void* ptr){
     mouse_data.flags = flags;
 }
 
-void showActor(GrabCut &Grab)
-{
-    if (Grab.GetSourceImage().empty()) return;
-    Mat ui_refresh;//Temp image for UI display
-    Mat current_mask;//Copy of mask
-    
-    if(!Grab.isMaskInitialized)
-    {
-        Grab.GetSourceImage().copyTo(ui_refresh);
-    }
-    else
-    {
-        Grab.GetSourceImage().copyTo(ui_refresh);
-
-        /*
-        Mat mask = Grab.GetMask();
-        Mat bgdModel;
-        Mat fgdModel;
-        current_mask.create(mask.size(), CV_8UC1 );
-        Grab.ProcessMask(mask, current_mask);
-        //cv::grabCut(Grab.GetSourceImage(), current_mask, Grab._labels_region, bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
-
-        current_mask.copyTo(ui_refresh);*/
-    }
-    
-    
-    //Draw labels (from vectors: _fgd_pxls, _prob_fgd_pxls, etc)
-    
-    //If currently defining (MOUSE_MOVE) the initial rectangle, draw it
-    if(Grab._rectangle_state == GrabCut::IN_PROCESS)
-    {
-        rectangle(  ui_refresh,
-                  Point( Grab._labels_region.x, Grab._labels_region.y ),
-                  Point( Grab._labels_region.x + Grab._labels_region.width,
-                        Grab._labels_region.y + Grab._labels_region.height ),
-                  GREEN, 1);
-    }
-    if(Grab._rectangle_state == GrabCut::SET)
-        Grab.GetSourceImage().copyTo(ui_refresh);
-    imshow(WINDOW_ACTOR, ui_refresh);
-    waitKey(30);
-}
-
-//cout << "Dans showActor state is: " + to_string(Grab._labelling_state) << endl;
 
 
 

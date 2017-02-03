@@ -43,11 +43,13 @@ void GrabCut::Reset()
 
 void GrabCut::SetMaskWithRect(){
     CV_Assert( !_mask.empty() );
-
-    _mask.setTo( GC_BGD );//Put all ROI to 0
+    _mask.create(_source_image.rows, _source_image.cols, CV_8UC1);
+    _mask.setTo( Scalar(GC_BGD) );//Put all ROI to 0
     //Update ROI with probable fgd pixels defined by user selection
-    //(_mask(_labels_region)).setTo( Scalar(255, 0, 0, 1) );
-    (_mask(_labels_region)).setTo( Scalar(GC_PR_BGD) );
+    if(_labels_region.width > 1)
+        (_mask(_labels_region)).setTo( Scalar(GC_PR_BGD) );
+    else
+        cout << "ROI rectangle not defined" << endl;
 }
 
 
