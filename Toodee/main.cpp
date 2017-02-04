@@ -154,6 +154,7 @@ Mat CreateActor(Mat frame)
             state = STATE_VIDEO_FEED;
             }
             break;
+            
         case EVENT_LBUTTONDOWN:
             {
                 //Don't we already have a rectangle set ?
@@ -161,7 +162,6 @@ Mat CreateActor(Mat frame)
                 {
                     Grab._rectangle_state = GrabCut::IN_PROCESS;
                     Grab._labels_region = Rect( mouse_data.x, mouse_data.y, 1, 1 );
-                    cout << "ON FAIT LE RECTANGLE !" << endl;
                 }
                 //If we do, we are defining bgd / fgd labels for the mask
                 if(Grab._rectangle_state == GrabCut::SET)
