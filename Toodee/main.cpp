@@ -182,9 +182,13 @@ Mat CreateActor(Mat frame)
                          Point(mouse_data.x, mouse_data.y) );
                     rectangle(temp_frame, Point(Grab._labels_region.x, Grab._labels_region.y),
                               Point(mouse_data.x, mouse_data.y), GREEN, 2);
+                } else
+                {
+                    cout << "MOVING FOR LABELS !" << endl;
                 }
             }
             break;
+            
         case EVENT_LBUTTONUP:
             {
                 if(Grab._rectangle_state == GrabCut::IN_PROCESS)
@@ -193,16 +197,19 @@ Mat CreateActor(Mat frame)
                     Grab.SetMaskWithRect();
                     Mat bgdModel;
                     Mat fgdModel;
-                    grabCut( Grab.GetSourceImage(), Grab.GetMask(), Grab._labels_region, bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
-                    //Get result from masks & image
+                    grabCut( Grab.GetSourceImage(), Grab.GetMask(),
+                            Grab._labels_region, bgdModel, fgdModel, 1, GC_INIT_WITH_RECT );
+                    //Get foreground and probably foreground labelled pixels as a mask
                     Mat mask_fgpf = ( Grab.GetMask() == cv::GC_FGD) | ( Grab.GetMask() == cv::GC_PR_FGD);
+                    //Init a zeroed matrix same size as original image
                     Mat res_img = cv::Mat3b::zeros(Grab.GetSourceImage().rows, Grab.GetSourceImage().cols);
+                    //Mask original image with  mask_fgpfg, copy the result in res_img
                     Grab.GetSourceImage().copyTo( res_img, mask_fgpf );
-                    Grab._rectangle_state = GrabCut::SET;
-                    Grab.isMaskInitialized = true;
-                    //Met à jour actor
+                    Grab._rectangle_state = GrabCut::SET;//Done with init rectangle phase
+                    Grab.isMaskInitialized = true;//We got a mask
+                    //Update actor with resulting masked image
                     actor->SetImage(res_img(Rect(Grab._labels_region)));
-                    res_img.copyTo(temp_frame);
+                    res_img.copyTo(temp_frame);//The image to be returned to main loop
                     imshow("Actor", actor->GetImage());
                     waitKey(30);
                     state = STATE_VIDEO_FEED;
