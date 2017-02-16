@@ -15,6 +15,8 @@
 #include "Stage.hpp"
 #include "GrabCut.hpp"
 #include <string.h>
+#include <vector>
+
 using namespace std;
 using namespace cv;
 
@@ -45,6 +47,10 @@ bool isActorOK = false;
 vector<Actor*> actors_list;
 Mat cameraInput;
 GrabCut Grab;
+
+
+bool isFgdLabel = false;//Left click (fgd labels pixels)
+bool isBgdLabel = false;//Right click (bgd labels pixles)
 
 //Definitions
 void AddActor();
@@ -102,6 +108,14 @@ int main(int argc, const char* argv[]) {
         }
         //resize(output_frame, output_frame,
         //Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_CUBIC);
+        if(state == STATE_ACTOR)
+        {
+            for (int i=0; i < Grab._fgd_pxls.size(); i++)
+            {
+                rectangle(output_frame, Point(Grab._fgd_pxls.at(i).x , Grab._fgd_pxls.at(i).y),
+                          Point(Grab._fgd_pxls.at(i).x+1 , Grab._fgd_pxls.at(i).y+1), GREEN, 1);
+            }
+        }
         imshow(WINDOW_MAIN, output_frame);
         waitKey(10);
     }
@@ -154,7 +168,7 @@ Mat CreateActor(Mat frame)
             state = STATE_VIDEO_FEED;
             }
             break;
-            
+        
         case EVENT_LBUTTONDOWN:
             {
                 //Don't we already have a rectangle set ?
@@ -165,12 +179,14 @@ Mat CreateActor(Mat frame)
                 }
                 //If we do, we are defining bgd / fgd labels for the mask
                 if(Grab._rectangle_state == GrabCut::SET)
-                {//TODO: LABELS
-                    cout << "ON FAIT LES LABELS !" << endl;
+                {
+                    cout << "ON COMMENCE/CONTINUE LES LABELS FOREGROUND!!!" << endl;
+                    isFgdLabel = true;
                     Grab._labelling_state = GrabCut::IN_PROCESS;
                 }
             }
             break;
+            
         case EVENT_MOUSEMOVE:
             {
                 if( Grab._rectangle_state == GrabCut::IN_PROCESS )
@@ -182,9 +198,19 @@ Mat CreateActor(Mat frame)
                          Point(mouse_data.x, mouse_data.y) );
                     rectangle(temp_frame, Point(Grab._labels_region.x, Grab._labels_region.y),
                               Point(mouse_data.x, mouse_data.y), GREEN, 2);
-                } else
+                } else if (Grab._labelling_state == GrabCut::IN_PROCESS)
                 {
-                    cout << "MOVING FOR LABELS !" << endl;
+                    cout << "on pushe le LABELS" << endl;
+                    if(isFgdLabel == true) //FLUTE, IL FAUT REFACTIR POUR FAIRE AVEC DEUX TOUCHES SHIFT/CTRL pour fgd et bgd
+                    {
+                        cout << "on pushe les FGD labels" << endl;
+                        Grab._fgd_pxls.push_back(Point(mouse_data.x, mouse_data.y));
+                    }
+                    else if (isBgdLabel == true)
+                    {
+                        cout << "on pushe les BGD labels" << endl;
+                        Grab._bgd_pxls.push_back(Point(mouse_data.x, mouse_data.y));
+                    }
                 }
             }
             break;
@@ -212,7 +238,11 @@ Mat CreateActor(Mat frame)
                     res_img.copyTo(temp_frame);//The image to be returned to main loop
                     imshow("Actor", actor->GetImage());
                     waitKey(30);
-                    state = STATE_VIDEO_FEED;
+                    Grab._rectangle_state = GrabCut::SET;
+                } else if (Grab._labelling_state  == GrabCut::IN_PROCESS)
+                {
+                    //Set labels in mask
+                    Grab._labelling_state  = GrabCut::SET;
                 }
             }
             break;

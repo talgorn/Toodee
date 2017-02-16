@@ -33,9 +33,12 @@ public:
     //Variables
     enum        { NOT_SET = 0, IN_PROCESS = 1, SET = 2 };
     bool        isMaskInitialized;//Either with Rectangle or Labels
-    short        _rectangle_state;//1=Updating initial ROI (and mask) with rectangle
-    short       _labelling_state;//1=Updating labels of mask
+    short        _rectangle_state;//STATE_NOT_SET=Updating initial ROI (and mask) with rectangle
+    short       _labelling_state;//STATE_NOT_SET=Updating labels of mask
     cv::Rect    _labels_region;//ROI
+    std::vector<cv::Point>//mask's labels
+    _fgd_pxls, _bgd_pxls,
+    _prob_fgd_pxls, _prob_bgd_pxls;//Probable fgd/bgd pixels
 private:
     //Methods
     void        Reset();//Init mask and labels
@@ -43,8 +46,5 @@ private:
     bool        isMaskInitialised;
     cv::Mat     _source_image;
     cv::Mat     _mask;
-    std::vector<cv::Point>//mask's labels
-                _fgd_pxls, _bgd_pxls,
-                _prob_fgd_pxls, _prob_bgd_pxls;
 };
 #endif /* GrabCut_hpp */
