@@ -25,7 +25,8 @@ const int FRAME_WIDTH = 200;
 const int FRAME_HEIGHT = 200;
 const string WINDOW_MAIN = "TOODEE";
 const string WINDOW_ACTOR = "ACTOR WINDOW";
-const char* btn_actor = "Create actor";
+const char* btn_set_actor = "Set actor";
+const char* btn_extract_actor = "Extract actor";
 const char* btn_stage = "Create stage";
 
 //App states
@@ -42,8 +43,10 @@ typedef struct mouse_data {
 } mouse_holder;
 
 //Globals
+const int BGD_KEY = EVENT_FLAG_SHIFTKEY;
 mouse_holder mouse_data;//Mouse data
 bool isActorOK = false;
+bool isBackground = false;
 vector<Actor*> actors_list;
 Mat cameraInput;
 GrabCut Grab;
@@ -56,7 +59,7 @@ bool isBgdLabel = false;//Right click (bgd labels pixles)
 void AddActor();
 void CreateStage(Mat frame);
 void CreateGui();
-void ButtonActorCallback(int, void*);
+void ButtonSetActorCallback(int, void*);
 void ButtonStageCallback(int, void*);
 void on_mouse_events( int , int , int , int , void* );
 Mat CreateActor(Mat);
@@ -77,7 +80,7 @@ int main(int argc, const char* argv[]) {
     videoFeed.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
     
     //Create a window to display video stream
-    namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE);
+    namedWindow(WINDOW_MAIN, WINDOW_AUTOSIZE | CV_GUI_EXPANDED);
     setMouseCallback(WINDOW_MAIN, on_mouse_events, &mouse_data);
     CreateGui();
     
@@ -115,6 +118,11 @@ int main(int argc, const char* argv[]) {
                 rectangle(output_frame, Point(Grab._fgd_pxls.at(i).x , Grab._fgd_pxls.at(i).y),
                           Point(Grab._fgd_pxls.at(i).x+1 , Grab._fgd_pxls.at(i).y+1), GREEN, 1);
             }
+            for (int i=0; i < Grab._bgd_pxls.size(); i++)
+            {
+                rectangle(output_frame, Point(Grab._bgd_pxls.at(i).x , Grab._bgd_pxls.at(i).y),
+                          Point(Grab._bgd_pxls.at(i).x+1 , Grab._bgd_pxls.at(i).y+1), BLUE, 1);
+            }
         }
         imshow(WINDOW_MAIN, output_frame);
         waitKey(10);
@@ -123,7 +131,7 @@ int main(int argc, const char* argv[]) {
 }
 
 //Callbacks
-void ButtonActorCallback(int, void*)
+void ButtonSetActorCallback(int, void*)
 {
     //initialize GrabCut object with current mframe
     Grab.InitWithImage(cameraInput);
@@ -132,12 +140,19 @@ void ButtonActorCallback(int, void*)
     state = STATE_ACTOR;
 }
 
+void ButtonExtractActorCallback(int, void*)
+{
+    //Iterate Grabcut with mask
+    cout << "ITERATE GRABCUT WITH MASK !!!" << endl;
+}
+
 void ButtonStageCallback(int, void*){state = STATE_STAGE;}
 
 void CreateGui()
 {
     createButton(btn_stage,ButtonStageCallback,NULL,CV_PUSH_BUTTON,0);
-    createButton(btn_actor,ButtonActorCallback,NULL,CV_PUSH_BUTTON,0);
+    createButton(btn_set_actor,ButtonSetActorCallback,NULL,CV_PUSH_BUTTON,0);
+    createButton(btn_extract_actor,ButtonExtractActorCallback,NULL,CV_PUSH_BUTTON,0);
 }
 
 void AddActor() {
@@ -171,8 +186,11 @@ Mat CreateActor(Mat frame)
         
         case EVENT_LBUTTONDOWN:
             {
+                //Store SHIFT_KEY state -> Yes: isBackground = true;
+                isBackground = (mouse_data.flags & BGD_KEY) !=0;
+                
                 //Don't we already have a rectangle set ?
-                if(Grab._rectangle_state == GrabCut::NOT_SET)
+                if(Grab._rectangle_state == GrabCut::NOT_SET && !isBackground)
                 {
                     Grab._rectangle_state = GrabCut::IN_PROCESS;
                     Grab._labels_region = Rect( mouse_data.x, mouse_data.y, 1, 1 );
@@ -180,9 +198,15 @@ Mat CreateActor(Mat frame)
                 //If we do, we are defining bgd / fgd labels for the mask
                 if(Grab._rectangle_state == GrabCut::SET)
                 {
-                    cout << "ON COMMENCE/CONTINUE LES LABELS FOREGROUND!!!" << endl;
-                    isFgdLabel = true;
                     Grab._labelling_state = GrabCut::IN_PROCESS;
+                    if(isBackground)
+                        {
+                        cout << "BACKGROUND LABELS NOW!!!" << endl;
+                        }
+                    else if(!isBackground)
+                        {
+                            cout << "FOREGROUND LABELS NOW!!!" << endl;
+                        }
                 }
             }
             break;
@@ -191,7 +215,6 @@ Mat CreateActor(Mat frame)
             {
                 if( Grab._rectangle_state == GrabCut::IN_PROCESS )
                 {
-                    cout << "prit" << endl;
                     Grab._labels_region = Rect(Point(Grab._labels_region.x, Grab._labels_region.y),
                                                Point(mouse_data.x, mouse_data.y));
                     Rect( Point(Grab._labels_region.x, Grab._labels_region.y),
@@ -200,13 +223,12 @@ Mat CreateActor(Mat frame)
                               Point(mouse_data.x, mouse_data.y), GREEN, 2);
                 } else if (Grab._labelling_state == GrabCut::IN_PROCESS)
                 {
-                    cout << "on pushe le LABELS" << endl;
-                    if(isFgdLabel == true) //FLUTE, IL FAUT REFACTIR POUR FAIRE AVEC DEUX TOUCHES SHIFT/CTRL pour fgd et bgd
+                    if(!isBackground == true)
                     {
                         cout << "on pushe les FGD labels" << endl;
                         Grab._fgd_pxls.push_back(Point(mouse_data.x, mouse_data.y));
                     }
-                    else if (isBgdLabel == true)
+                    else if (isBackground == true)
                     {
                         cout << "on pushe les BGD labels" << endl;
                         Grab._bgd_pxls.push_back(Point(mouse_data.x, mouse_data.y));

@@ -16,7 +16,7 @@
 
 //Const
 const cv::Scalar GREEN = cvScalar(0,255,0);
-
+const cv::Scalar BLUE = cvScalar(255,0,0);
 class GrabCut
 {
 public:
