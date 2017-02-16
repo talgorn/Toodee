@@ -28,6 +28,8 @@ const string WINDOW_ACTOR = "ACTOR WINDOW";
 const char* btn_set_actor = "Set actor";
 const char* btn_extract_actor = "Extract actor";
 const char* btn_stage = "Create stage";
+static const int radius = 5;
+static const int thickness = -1;
 
 //App states
 enum enum_states
@@ -50,7 +52,6 @@ bool isBackground = false;
 vector<Actor*> actors_list;
 Mat cameraInput;
 GrabCut Grab;
-
 
 bool isFgdLabel = false;//Left click (fgd labels pixels)
 bool isBgdLabel = false;//Right click (bgd labels pixles)
@@ -115,13 +116,17 @@ int main(int argc, const char* argv[]) {
         {
             for (int i=0; i < Grab._fgd_pxls.size(); i++)
             {
-                rectangle(output_frame, Point(Grab._fgd_pxls.at(i).x , Grab._fgd_pxls.at(i).y),
-                          Point(Grab._fgd_pxls.at(i).x+1 , Grab._fgd_pxls.at(i).y+1), GREEN, 1);
+                Point p = Point(Grab._fgd_pxls.at(i).x , Grab._fgd_pxls.at(i).y);
+                circle( output_frame, p, radius, GREEN,  thickness );
+                //rectangle(output_frame, Point(Grab._fgd_pxls.at(i).x , Grab._fgd_pxls.at(i).y),
+                          //Point(Grab._fgd_pxls.at(i).x+label_size, Grab._fgd_pxls.at(i).y+label_size), GREEN, -1);
             }
             for (int i=0; i < Grab._bgd_pxls.size(); i++)
             {
-                rectangle(output_frame, Point(Grab._bgd_pxls.at(i).x , Grab._bgd_pxls.at(i).y),
-                          Point(Grab._bgd_pxls.at(i).x+1 , Grab._bgd_pxls.at(i).y+1), BLUE, 1);
+                Point p = Point(Grab._bgd_pxls.at(i).x , Grab._bgd_pxls.at(i).y);
+                circle( output_frame, p, radius, BLUE,  thickness );
+                //rectangle(output_frame, Point(Grab._bgd_pxls.at(i).x , Grab._bgd_pxls.at(i).y),
+                          //Point(Grab._bgd_pxls.at(i).x+label_size, Grab._bgd_pxls.at(i).y+label_size), BLUE, -1);
             }
         }
         imshow(WINDOW_MAIN, output_frame);
@@ -144,6 +149,7 @@ void ButtonExtractActorCallback(int, void*)
 {
     //Iterate Grabcut with mask
     cout << "ITERATE GRABCUT WITH MASK !!!" << endl;
+    //grabCut( *image, mask, rect, bgdModel, fgdModel, 1, GC_INIT_WITH_MASK );
 }
 
 void ButtonStageCallback(int, void*){state = STATE_STAGE;}
@@ -223,15 +229,18 @@ Mat CreateActor(Mat frame)
                               Point(mouse_data.x, mouse_data.y), GREEN, 2);
                 } else if (Grab._labelling_state == GrabCut::IN_PROCESS)
                 {
+                    Point p = Point(mouse_data.x, mouse_data.y);
                     if(!isBackground == true)
                     {
                         cout << "on pushe les FGD labels" << endl;
-                        Grab._fgd_pxls.push_back(Point(mouse_data.x, mouse_data.y));
+                        Grab._fgd_pxls.push_back(p);
+                        circle( Grab.GetMask(), p, radius, GC_PR_FGD,  thickness );
                     }
                     else if (isBackground == true)
                     {
                         cout << "on pushe les BGD labels" << endl;
                         Grab._bgd_pxls.push_back(Point(mouse_data.x, mouse_data.y));
+                        circle( Grab.GetMask(), p, radius, GC_PR_BGD,  thickness );
                     }
                 }
             }
